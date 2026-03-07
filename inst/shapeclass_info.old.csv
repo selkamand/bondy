@@ -1,0 +1,18 @@
+ShapeClass,Axis1,Axis2,Axis1x,Axis1y,Axis1z,Axis2x,Axis2y,Axis2z,Notes
+D2,2,2,1,0,0,0,1,0,
+D3,3,2,1,0,0,0,1,0,
+D3_hom,2,2,0,1,0,0,0.5,0.8660254,
+D4,4,2,1,0,0,0,1,0,
+D4_hom,2,2,0,1,0,0,0.707106781,0.707106781,
+D5,5,2,1,0,0,0,1,0,
+D5_hom,2,2,0,1,0,0,0.809016994,0.587785252,
+D6,6,2,1,0,0,0,1,0,
+D6_hom,2,2,0,1,0,0,0.866025404,0.5,
+Edge-capped tetrahedron,3,2,1,1,1,0,0,1.618034,
+Face-capped tetrahedron,3,3,1,1,1,1,1,-1,
+Face-capped cube,3,4,1,1,1,0,0,1,Equivalent to face-capped octahedron
+Edge-capped cube,3,2,1,1,1,1,0,1,
+Edge-capped octahedron,4,2,0,0,1,1,0,1,
+Edge-capped icosahedron,5,2,0,1,1.618034,0,0,1.618034,
+Face-capped icosahedron,5,3,0,1,1.618034,0.5393447,0,1.4120227,Equivalent to face-capped dodecahedron
+Edge-capped dodecahedron,3,2,1,1,1,0,0,1.618034,
