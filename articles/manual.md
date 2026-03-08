@@ -278,7 +278,7 @@ print(optimisations)
 #> Optimisation Result Collection
 #> ================================
 #> Shape Classes Evaluated: 1
-#> -> Face-capped cube (D: 0.000019 | A: 3.139092)
+#> -> Face-capped cube (D: 2.464957 | A: 1.957490)
 ```
 
 Each evaluated shape class returns two diagnostic values:

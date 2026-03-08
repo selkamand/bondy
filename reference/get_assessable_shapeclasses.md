@@ -61,13 +61,13 @@ get_assessable_shapeclasses(molecule1_axes = c(3, 4),
 #> 4         3         2   FALSE Edge-capped dodecahedron     3     2      1
 #> 5         4         2   FALSE                       D4     4     2      1
 #> 6         4         2   FALSE   Edge-capped octahedron     4     2      0
-#>   Axis1y Axis1z Axis2x Axis2y   Axis2z Notes assessable
-#> 1      0      0      0      1 0.000000             TRUE
-#> 2      1      1      0      0 1.618034             TRUE
-#> 3      1      1      1      0 1.000000             TRUE
-#> 4      1      1      0      0 1.618034             TRUE
-#> 5      0      0      0      1 0.000000             TRUE
-#> 6      0      1      1      0 1.000000             TRUE
+#>   Axis1y Axis1z Axis2x    Axis2y   Axis2z Notes assessable
+#> 1      0      0    0.0  1.000000 0.000000             TRUE
+#> 2      1      1    1.0  0.000000 0.000000             TRUE
+#> 3      1      1    1.0  0.000000 1.000000             TRUE
+#> 4     -1      1    0.5 -0.809017 1.309017             TRUE
+#> 5      0      0    0.0  1.000000 0.000000             TRUE
+#> 6      0      1    1.0  0.000000 1.000000             TRUE
 
 # If molecule 1 only has C2 and molecule 2 has C3, some geometries
 # (e.g. edge-capped dodecahedron) are only assessable by swapping:
@@ -78,9 +78,9 @@ get_assessable_shapeclasses(molecule1_axes = 2,
 #> 2         3         2    TRUE  Edge-capped tetrahedron     3     2      1
 #> 3         3         2    TRUE         Edge-capped cube     3     2      1
 #> 4         3         2    TRUE Edge-capped dodecahedron     3     2      1
-#>   Axis1y Axis1z Axis2x Axis2y   Axis2z Notes assessable
-#> 1      0      0      0      1 0.000000             TRUE
-#> 2      1      1      0      0 1.618034             TRUE
-#> 3      1      1      1      0 1.000000             TRUE
-#> 4      1      1      0      0 1.618034             TRUE
+#>   Axis1y Axis1z Axis2x    Axis2y   Axis2z Notes assessable
+#> 1      0      0    0.0  1.000000 0.000000             TRUE
+#> 2      1      1    1.0  0.000000 0.000000             TRUE
+#> 3      1      1    1.0  0.000000 1.000000             TRUE
+#> 4     -1      1    0.5 -0.809017 1.309017             TRUE
 ```
