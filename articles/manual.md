@@ -41,6 +41,7 @@ Symbo.
 Symbo and all its dependencies can be installed by running:
 
 ``` r
+
 if (!require("remotes"))
     install.packages("remotes")
 
@@ -93,6 +94,7 @@ our 3D plots trying to render in a local graphics engine and instead
 render exclusively in a web based viewer.
 
 ``` r
+
 options(rgl.useNULL=TRUE)
 ```
 
@@ -106,6 +108,7 @@ path to your file of interest (e.g.
 `"/Users/username/Documents/my_molecule_1.mol2"`)
 
 ``` r
+
 # Load the libraries we need
 library(structures) # For reading mol2 files and annotating molecular structures
 library(chemviewR) # For visualising 3D molecular structures
@@ -124,6 +127,7 @@ molecule2 <- read_mol2(molecule2_filepath)
 Lets investigate these molecules by printing a summary
 
 ``` r
+
 print(molecule1)
 #> ===================
 #> Chemical Molecule3D
@@ -153,10 +157,12 @@ are dummy atoms representing the palladium binding position.
 Use **chemviewR** to generate interactive 3D plots:
 
 ``` r
+
 plot_molecule(molecule1)
 ```
 
 ``` r
+
 plot_molecule(molecule2)
 ```
 
@@ -175,6 +181,7 @@ rotation axes (Cn)** that describe their symmetry.
 ### Example: Iron tripod (C3 axis)
 
 ``` r
+
 # Iron tripods have a C3 proper rotation axis. 
 # This axis is identical to the normal of the plane formed by our three N5 nitrogen atoms. So lets first compute this plane
 molecule1_plane <- molecule1 |>
@@ -199,6 +206,7 @@ plot_molecule(molecule1)
 ### Palladium complex (C4 axis)
 
 ``` r
+
 
 # Palladium has a C4 symmetry axis.
 # Direction is equivalent to the normal or the plane formed by the entire molecule
@@ -237,6 +245,7 @@ To determine the correct atom indices (`eleno` values), inspect the atom
 tables:
 
 ``` r
+
 View(molecule1@atoms)
 View(molecule2@atoms)
 ```
@@ -252,6 +261,7 @@ To find the optimal configuration of our two molecules for each
 higher-order geometric structure they might form, run:
 
 ``` r
+
 # Specify the binding atom
 optimisations <- screen_molecules(
   molecule1 = molecule1,
@@ -285,12 +295,14 @@ Each evaluated shape class returns two diagnostic values:
 
 **Minimised Sum of Squared Distances (D)**
 
-$$D = d_{1}^{2} + d_{2}^{2}$$
+``` math
+D = d_1^2 + d_2^2
+```
 
 where:
 
-- $d_{1}$ = distance from mol1 dummy → mol2 binding atom
-- $d_{2}$ = distance from mol2 dummy → mol1 binding atom
+- $`d_1`$ = distance from mol1 dummy → mol2 binding atom
+- $`d_2`$ = distance from mol2 dummy → mol1 binding atom
 
 A lower value means a more geometrically feasible arrangement.
 
@@ -309,6 +321,7 @@ each shape class evaluated, Symbo reports two values:
 Symbo can generate a HTML report summarising results:
 
 ``` r
+
 create_summary_report(optimisations)
 ```
 
