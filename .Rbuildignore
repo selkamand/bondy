@@ -9,3 +9,5 @@ screen_results.html
 ^docs$
 ^pkgdown$
 ^\.github$
+^\.positai$
+^\.claude$
