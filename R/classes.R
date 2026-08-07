@@ -648,9 +648,11 @@ get_optimistation_stats <- function(x) {
     "Shape Class" = x@shapeclass,
     "Minimised Sum of Squared Distance" = x@min_sum_of_squared_distance,
     "Minimised Angle (pi = perfect)" = x@angle_between_dummy_binding_vectors,
-    "Convergence" = x@convergence,
-    "Calls to Optimisation Function" = x@n_calls_to_fn,
-    "Messages/Warnings: " = x@message
+    "Convergence" = x@optimisation_outputs@convergence,
+    "Calls to Optimisation Function" = unname(
+      x@optimisation_outputs@n_calls_to_fn
+    ),
+    "Messages/Warnings: " = unname(x@optimisation_outputs@message)
   )
 
   df <- data.frame(
