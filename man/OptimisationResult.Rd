@@ -6,22 +6,10 @@
 \usage{
 OptimisationResult(
   shapeclass = "NotSpecified",
-  mol = structures::Molecule3D(),
-  mol1 = structures::Molecule3D(),
-  mol2 = structures::Molecule3D(),
-  min_sum_of_squared_distance = NaN,
-  angle_between_dummy_binding_vectors = NaN,
-  mol1_phi = NaN,
-  mol2_phi = NaN,
-  mol1_slide = NaN,
-  mol2_slide = NaN,
-  mol1_axis = c(NaN, NaN, NaN),
-  mol2_axis = c(NaN, NaN, NaN),
-  n_calls_to_fn = 0,
-  n_calls_to_gr = 0,
-  convergence = NA_real_,
-  message = NA_character_,
-  hessian = 2
+  optimisation_inputs,
+  optimisation_outputs,
+  minimised_value_description,
+  loss_function
 )
 }
 \arguments{

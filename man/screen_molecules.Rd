@@ -4,17 +4,7 @@
 \alias{screen_molecules}
 \title{Screen molecules for valid Shape classes}
 \usage{
-screen_molecules(
-  molecule1,
-  molecule2,
-  mol1_binding_atom,
-  mol2_binding_atom,
-  method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN", "Brent"),
-  lower = -Inf,
-  upper = Inf,
-  control = list(),
-  hessian = FALSE
-)
+screen_molecules(molecule1, molecule2, mol1_binding_atom, mol2_binding_atom)
 }
 \arguments{
 \item{molecule1}{a \code{\link[structures:Molecule3D]{structures::Molecule3D()}} object with symmetry axes annotated and dummy atoms representing where the mol2_binding_atom might bind.}
@@ -26,9 +16,6 @@ screen_molecules(
 \item{mol2_binding_atom}{the atom you expect will bind to molecule1 (integer representing element number a.k.a eleno).}
 
 \item{method, lower, upper, control, hessian}{optimisation algorith configuration. See \code{\link[stats:optim]{stats::optim()}} for details.}
-}
-\value{
-\code{\link{OptimisationResultCollection}} object.
 }
 \description{
 Screens a pair of molecules to find their most geometrically optimal configuration to produce shapeclasses
