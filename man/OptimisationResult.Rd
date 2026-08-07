@@ -192,15 +192,3 @@ record of the optimisation outcome for a given shape class or binding
 mode.
 }
 
-\examples{
-# (Pseudo-example; real usage would normally be through an optimiser)
-res <- OptimisationResult(
-  mol1 = structures::Molecule3D(),
-  mol2 = structures::Molecule3D()
-)
-res@min_sum_of_squared_distance <- 0.12
-res@n_calls_to_fn <- 35
-
-print(res)
-
-}

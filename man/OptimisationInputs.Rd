@@ -15,6 +15,18 @@ OptimisationInputs(
   mol2_binding_atom
 )
 }
+\arguments{
+\item{mol1}{\code{\link[structures:Molecule3D]{structures::Molecule3D()}} object aligned to mol1_axis ready for optimisation}
+
+\item{mol2}{\code{\link[structures:Molecule3D]{structures::Molecule3D()}} object aligned to mol1_axis ready for optimisation}
+
+\item{mol1_axis, mol2_axis}{the axes who the mol1 & mol2 proper rotations are aligned to.
+Their relative relationship is defined by the shapeclass being evaluated}
+
+\item{mol1_dummy_eleno, mol2_dummy_eleno}{element numbers of the dummy atoms describing where we expect the opposing molecule's binding atom to bind}
+
+\item{mol1_binding_atom, mol2_binding_atom}{element numbers of the atom in each molecule involved in the binding}
+}
 \value{
 OptimisationInputs
 }

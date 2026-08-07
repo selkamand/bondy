@@ -44,10 +44,18 @@ Vec3 <- S7::new_class(
 
 
 # OptimisationResult ------------------------------------------------------
+
 #' Optimisation Inputs
 #'
 #' A class describing molecular information required the generation of an optimisation function
 #' and for reapplying optimised paramaters to generate the molecule resulting from optimisation
+#'
+#' @param mol1 [structures::Molecule3D()] object aligned to mol1_axis ready for optimisation
+#' @param mol2 [structures::Molecule3D()] object aligned to mol1_axis ready for optimisation
+#' @param mol1_axis,mol2_axis the axes who the mol1 & mol2 proper rotations are aligned to.
+#' Their relative relationship is defined by the shapeclass being evaluated
+#' @param mol1_dummy_eleno,mol2_dummy_eleno element numbers of the dummy atoms describing where we expect the opposing molecule's binding atom to bind
+#' @param mol1_binding_atom,mol2_binding_atom element numbers of the atom in each molecule involved in the binding
 #'
 #' @return OptimisationInputs
 #'
@@ -367,16 +375,6 @@ OptimisationResultBasic <- S7::new_class(
 #' A new `OptimisationResult` S7 object with the supplied molecules and
 #' all other fields initialised to their type-appropriate defaults.
 #'
-#' @examples
-#' # (Pseudo-example; real usage would normally be through an optimiser)
-#' res <- OptimisationResult(
-#'   mol1 = structures::Molecule3D(),
-#'   mol2 = structures::Molecule3D()
-#' )
-#' res@min_sum_of_squared_distance <- 0.12
-#' res@n_calls_to_fn <- 35
-#'
-#' print(res)
 #'
 #' @export
 OptimisationResult <- S7::new_class(
