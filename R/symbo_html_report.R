@@ -15,11 +15,18 @@
 #' @returns invisibly returns NULL (this function is run for its side effects)
 #' @export
 #'
-create_summary_report <- function(optimisations, outdir = getwd(), prefix = "screen_results"){
-  assertions::assert_class(optimisations, class = "symbo::OptimisationResultCollection")
+create_summary_report <- function(
+  optimisations,
+  outdir = getwd(),
+  prefix = "screen_results"
+) {
+  assertions::assert_class(
+    optimisations,
+    class = "symbo::OptimisationResultCollection"
+  )
   path_template <- system.file(package = "symbo", "template/template.Rmd")
 
-   # Ensure dependencies are available (fail fast with a clear message)
+  # Ensure dependencies are available (fail fast with a clear message)
   required_pkgs <- c(
     "assertions",
     "cli",
@@ -34,7 +41,9 @@ create_summary_report <- function(optimisations, outdir = getwd(), prefix = "scr
     "structures"
   )
 
-  missing <- required_pkgs[!vapply(required_pkgs, rlang::is_installed, logical(1))]
+  missing <- required_pkgs[
+    !vapply(required_pkgs, rlang::is_installed, logical(1))
+  ]
   if (length(missing) > 0) {
     rlang::abort(c(
       "Missing packages required to render the symbo HTML report.",
@@ -46,7 +55,7 @@ create_summary_report <- function(optimisations, outdir = getwd(), prefix = "scr
     ))
   }
 
-  outpath = sprintf("%s/%s.html", outdir, prefix)
+  outpath <- sprintf("%s/%s.html", outdir, prefix)
   cli::cli_alert_info("Saving report to {.path {outpath}}")
   rmarkdown::render(
     input = path_template,
@@ -58,7 +67,6 @@ create_summary_report <- function(optimisations, outdir = getwd(), prefix = "scr
   )
 
   utils::browseURL(url = outpath)
-
 
   invisible(NULL)
 }
