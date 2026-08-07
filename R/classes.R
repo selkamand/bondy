@@ -1,6 +1,273 @@
+# Utility Classes ---------------------------------------------------------
+
+#' A three-dimensional numeric vector
+#'
+#' Represents a numeric vector of length three, with components stored in
+#' x, y, z order. Individual components are available through the `x`, `y`,
+#' and `z` properties, while `values` returns the complete vector.
+#'
+#' @param values a length-3 vector describing xyz coords.
+#'
+#' @export
+Vec3 <- S7::new_class(
+  name = "Vec3",
+  properties = list(
+    values = S7::new_property(
+      class = S7::class_numeric,
+      validator = function(value) {
+        if (length(value) != 3) {
+          "must be a numeric vector of length 3"
+        }
+      }
+    ),
+
+    x = S7::new_property(
+      class = S7::class_numeric,
+      getter = function(self) {
+        self@values[[1]]
+      }
+    ),
+
+    y = S7::new_property(
+      class = S7::class_numeric,
+      getter = function(self) {
+        self@values[[2]]
+      }
+    ),
+
+    z = S7::new_property(
+      class = S7::class_numeric,
+      getter = function(self) {
+        self@values[[3]]
+      }
+    )
+  )
+)
+
 
 # OptimisationResult ------------------------------------------------------
 
+#' Optimisation Inputs
+#'
+#' A class describing molecular information required the generation of an optimisation function
+#' and for reapplying optimised paramaters to generate the molecule resulting from optimisation
+#'
+#' @param mol1 [structures::Molecule3D()] object aligned to mol1_axis ready for optimisation
+#' @param mol2 [structures::Molecule3D()] object aligned to mol1_axis ready for optimisation
+#' @param mol1_axis,mol2_axis the axes who the mol1 & mol2 proper rotations are aligned to.
+#' Their relative relationship is defined by the shapeclass being evaluated
+#' @param mol1_dummy_eleno,mol2_dummy_eleno element numbers of the dummy atoms describing where we expect the opposing molecule's binding atom to bind
+#' @param mol1_binding_atom,mol2_binding_atom element numbers of the atom in each molecule involved in the binding
+#'
+#' @return OptimisationInputs
+#'
+#' @export
+OptimisationInputs <- S7::new_class(
+  name = "OptimisationInputs",
+  properties = list(
+    mol1 = structures::Molecule3D,
+    mol2 = structures::Molecule3D,
+    mol1_axis = Vec3,
+    mol2_axis = Vec3,
+    mol1_dummy_eleno = S7::class_numeric,
+    mol2_dummy_eleno = S7::class_numeric,
+    mol1_binding_atom = S7::class_numeric,
+    mol2_binding_atom = S7::class_numeric
+  ),
+  constructor = function(
+    mol1,
+    mol2,
+    mol1_axis,
+    mol2_axis,
+    mol1_dummy_eleno,
+    mol2_dummy_eleno,
+    mol1_binding_atom,
+    mol2_binding_atom
+  ) {
+    S7::new_object(
+      S7::S7_object(),
+      mol1 = mol1,
+      mol2 = mol2,
+      mol1_axis = mol1_axis,
+      mol2_axis = mol2_axis,
+      mol1_dummy_eleno = mol1_dummy_eleno,
+      mol2_dummy_eleno = mol2_dummy_eleno,
+      mol1_binding_atom = mol1_binding_atom,
+      mol2_binding_atom = mol2_binding_atom
+    )
+  }
+)
+
+#' Basic optimisation result
+#'
+#' @description
+#' `OptimisationResultBasic` stores the optimiser output needed by higher-level
+#' Symbo result objects. It describes the minimised objective value, the four fitted rotation/slide
+#' parameters, call counts, convergence status, and any optimiser message.
+#'
+#' @section Fields:
+#'
+#' The class has the following properties:
+#'
+#' \describe{
+#'   \item{minimised_value}{Numeric scalar giving the objective value at the
+#'   selected parameter vector.}
+#'
+#'   \item{method}{Character scalar naming the optimisation method or optimiser
+#'   that produced the result.}
+#'
+#'   \item{mol1_phi}{Numeric scalar giving the rotation angle applied to
+#'   molecule 1 about its optimisation axis.}
+#'
+#'   \item{mol2_phi}{Numeric scalar giving the rotation angle applied to
+#'   molecule 2 about its optimisation axis.}
+#'
+#'   \item{mol1_slide}{Numeric scalar giving the translation distance applied
+#'   to molecule 1 along its optimisation axis.}
+#'
+#'   \item{mol2_slide}{Numeric scalar giving the translation distance applied
+#'   to molecule 2 along its optimisation axis.}
+#'
+#'   \item{par}{Read-only numeric vector containing the optimised parameters in
+#'   loss-function order: `c(mol1_phi, mol1_slide, mol2_phi, mol2_slide)`.}
+#'
+#'   \item{n_calls_to_fn}{Numeric scalar giving the number of calls made to the
+#'   objective function.}
+#'
+#'   \item{n_calls_to_gr}{Numeric scalar giving the number of calls made to the
+#'   gradient function, where applicable.}
+#'
+#'   \item{convergence}{Character scalar summarising the optimiser convergence
+#'   status. Must be one of `"successful"`, `"out of iterations"`,
+#'   `"simplex degeneracy"`, `"warning"`, or `"error"`.}
+#'
+#'   \item{message}{Character scalar containing any optimiser message, warning,
+#'   or diagnostic text.}
+#' }
+#'
+#' @param minimised_value Numeric scalar giving the objective value at the
+#'   selected parameter vector. Defaults to `NaN`.
+#' @param method Character scalar naming the optimisation method or optimiser.
+#'   Defaults to `"Not specified"`.
+#' @param mol1_phi,mol2_phi Numeric scalars giving the fitted rotation angles
+#'   for molecule 1 and molecule 2. Defaults to `NaN`.
+#' @param mol1_slide,mol2_slide Numeric scalars giving the fitted slide
+#'   distances for molecule 1 and molecule 2. Defaults to `NaN`.
+#' @param n_calls_to_fn Numeric scalar giving the number of objective-function
+#'   calls. Defaults to `0`.
+#' @param n_calls_to_gr Numeric scalar giving the number of gradient-function
+#'   calls. Defaults to `0`.
+#' @param convergence Character scalar giving the convergence status. Defaults
+#'   to `"successful"` and must be one of the values listed in the fields
+#'   section.
+#' @param message Character scalar containing any optimiser message. `NULL` is
+#'   stored as `""`; values longer than length one are rejected.
+#'
+#' @return
+#' A new `OptimisationResultBasic` S7 object.
+#'
+#' @export
+OptimisationResultBasic <- S7::new_class(
+  name = "OptimisationResultBasic",
+  properties = list(
+    minimised_value = S7::class_numeric,
+    method = S7::class_character,
+    mol1_phi = S7::class_numeric,
+    mol2_phi = S7::class_numeric,
+    mol1_slide = S7::class_numeric,
+    mol2_slide = S7::class_numeric,
+    par = S7::new_property(
+      class = S7::class_numeric,
+      getter = function(self) {
+        c(
+          self@mol1_phi,
+          self@mol1_slide,
+          self@mol2_phi,
+          self@mol2_slide
+        )
+      },
+      setter = function(self, value) {
+        stop(
+          "the par property of OptimisationResultBasic is a read-only computed property"
+        )
+      }
+    ),
+    n_calls_to_fn = S7::class_numeric,
+    n_calls_to_gr = S7::class_numeric,
+    convergence = S7::new_property(
+      class = S7::class_character,
+      getter = function(self) {
+        self@convergence
+      },
+      validator = function(value) {
+        #:character
+        valid_values <-
+          c(
+            "successful",
+            "out of iterations",
+            "simplex degeneracy",
+            "warning",
+            "error"
+          )
+        if (!value %in% valid_values) {
+          sprintf(
+            "Invalid convergence value: [%s]. Expected one of [%s]",
+            value,
+            toString(valid_values)
+          )
+        }
+      }
+    ),
+    message = S7::new_property(
+      class = S7::class_character,
+      setter = function(self, value) {
+        # Assert value is a string (length 1 character vector)
+        if (length(value) > 1) {
+          stop(sprintf(
+            "@message must be a string, not a vector of length (%d)",
+            length(value)
+          ))
+        }
+        self@message <- if (is.null(value)) "" else value
+        self
+      }
+    )
+  ),
+  constructor = function(
+    minimised_value = NaN,
+    method = "Not specified",
+    mol1_phi = NaN,
+    mol2_phi = NaN,
+    mol1_slide = NaN,
+    mol2_slide = NaN,
+    n_calls_to_fn = 0,
+    n_calls_to_gr = 0,
+    convergence = c(
+      "successful",
+      "out of iterations",
+      "simplex degeneracy",
+      "warning",
+      "error"
+    ),
+    message = NA_character_
+  ) {
+    convergence <- rlang::arg_match(convergence)
+
+    S7::new_object(
+      S7::S7_object(),
+      minimised_value = minimised_value,
+      method = method,
+      mol1_phi = mol1_phi,
+      mol2_phi = mol2_phi,
+      mol1_slide = mol1_slide,
+      mol2_slide = mol2_slide,
+      n_calls_to_fn = n_calls_to_fn,
+      n_calls_to_gr = n_calls_to_gr,
+      convergence = convergence,
+      message = message
+    )
+  }
+)
 
 
 #' Optimisation result for two aligned molecules
@@ -18,18 +285,37 @@
 #'
 #' \describe{
 #'
-#'.  \item{mol}{A [`structures::Molecule3D`] object representing
-#'   the two input molecules combined in their geometrically optimised form (i.e.,
-#'   after applying the optimal rotation/translation that minimises
-#'   `min_sum_of_squared_distance`).}
+#'   \item{shapeclass}{Character scalar naming the assessed shape class.}
 #'
-#'   \item{mol1}{A [`structures::Molecule3D`] object representing
-#'   the first input molecule in its geometrically optimised form (i.e.,
-#'   after applying the optimal rotation/translation that minimises
-#'   `min_sum_of_squared_distance`).}
+#'   \item{optimisation_inputs}{An [`OptimisationInputs`] object containing the
+#'   oriented molecules, symmetry-axis vectors, dummy atom IDs, and binding atom
+#'   IDs used to build the loss function.}
 #'
-#'   \item{mol2}{A [`structures::Molecule3D`] object representing
-#'   the second input molecule in its geometrically optimised form.}
+#'   \item{optimisation_outputs}{An [`OptimisationResultBasic`] object returned
+#'   by the selected optimiser. It stores the optimal rotation/slide parameters,
+#'   minimised objective value, method, convergence status, call counts, and
+#'   message.}
+#'
+#'   \item{loss_function}{The objective function that was optimised.}
+#'
+#'   \item{minimised_value_description}{Character scalar describing what the
+#'   stored objective value represents.}
+#'
+#'   \item{orientation}{Character scalar identifying which of the two
+#'   search-space orientations produced the best result. `"+"` is the normal
+#'   orientation; `"-"` is the inverted symmetry-axis orientation.}
+#'
+#'   \item{mol1_optimal}{Read-only [`structures::Molecule3D`] object giving
+#'   molecule 1 after applying the optimal rotation and slide from
+#'   `optimisation_outputs`. Dummy atoms are retained.}
+#'
+#'   \item{mol2_optimal}{Read-only [`structures::Molecule3D`] object giving
+#'   molecule 2 after applying the optimal rotation and slide from
+#'   `optimisation_outputs`. Dummy atoms are retained.}
+#'
+#'   \item{mol}{Read-only [`structures::Molecule3D`] object containing the
+#'   optimised combined molecule. The two binding atoms are bonded, dummy atoms
+#'   are removed, and atoms/bonds are renumbered for export.}
 #'
 #'   \item{min_sum_of_squared_distance}{Numeric scalar giving the
 #'   minimised sum of squared distances between the dummy atoms of each
@@ -45,249 +331,322 @@
 #'   atom, computed for the optimised geometry. For a “perfect” solution
 #'   this angle would be \eqn{\pi} (180 degrees).}
 #'
-#'   \item{mol1_phi}{Numeric scalar (radians): the optimal rotation angle
-#'   applied to `mol1` about `mol1_axis` to obtain the geometrically
-#'   optimal configuration.}
-#'
-#'   \item{mol2_phi}{Numeric scalar (radians): the optimal rotation angle
-#'   applied to `mol2` about `mol2_axis`.}
-#'
-#'   \item{mol1_slide}{Numeric scalar giving the optimal distance to
-#'   translate `mol1` along `mol1_axis` (the “slide” along the axis)
-#'   in the optimal configuration.}
-#'
-#'   \item{mol2_slide}{Numeric scalar giving the optimal distance to
-#'   translate `mol2` along `mol2_axis`.}
-#'
-#'   \item{mol1_axis}{Numeric length-3 vector describing the Cartesian
-#'   direction of the symmetry axis about which `mol1` was rotated and
-#'   along which it was slid during optimisation.}
-#'
-#'   \item{mol2_axis}{Numeric length-3 vector describing the corresponding
-#'   axis for `mol2`.}
-#'
-#'   \item{n_calls_to_fn}{Numeric scalar giving the number of calls to
-#'   the objective function (`fn`) made by the optimiser.}
-#'
-#'   \item{n_calls_to_gr}{Numeric scalar giving the number of calls to
-#'   the gradient function (`gr`) made by the optimiser (where applicable).}
-#'
-#'   \item{convergence}{Numeric scalar convergence code, typically matching
-#'   the codes returned by [stats::optim()]. For example:
-#'   \itemize{
-#'     \item `0` – successful completion (method-dependent).
-#'     \item `1` – iteration limit (`maxit`) reached.
-#'     \item `10` – degeneracy of the Nelder–Mead simplex.
-#'     \item `51` – warning from method `"L-BFGS-B"` (see `message`).
-#'     \item `52` – error from method `"L-BFGS-B"` (see `message`).
-#'   }
-#'   See the documentation of the optimisation routine for exact meanings.}
-#'
-#'   \item{message}{Character scalar giving any additional information
-#'   returned by the optimiser (e.g. warnings, diagnostic messages). May be
-#'   `NA_character_` if no message is available.}
-#'
-#'   \item{hessian}{Numeric object (typically a symmetric matrix) giving an
-#'   estimate of the Hessian at the solution, if available. This is usually
-#'   the Hessian of the *unconstrained* problem, even if box constraints are
-#'   active. If the optimisation was run without requesting a Hessian, this
-#'   property is set to `NaN`. Assigning `NULL` to `hessian` will also store
-#'   `NaN` internally.}
-#'
 #' }
 #'
 #' @section Typical usage:
 #'
 #' Instances of `OptimisationResult` are usually created internally by
-#' higher-level alignment / docking routines, and returned as a structured
-#' record of the optimisation outcome for a given shape class or binding
-#' mode.
+#' higher-level methods and returned as a structured
+#' record of the optimisation outcome for a given shape class, molecule orientation, or optimisation approach
 #'
-#' @param mol A [`structures::Molecule3D`] object giving the
-#'   optimised coordinates of the two combined molecules. Defaults to an empty
-#'   `Molecule3D()` instance.
+#' @param shapeclass Name of the shape class being evaluated (character scalar). See [list_all_shapeclasses()] for valid terms
+#' @param optimisation_inputs An [`OptimisationInputs`] object describing the
+#'   oriented molecules and atom IDs used by the objective function, created using [extract_optimisation_inputs()].
+#' @param optimisation_outputs An [`OptimisationResultBasic`] object containing
+#'   the selected optimiser output.
+#' @param minimised_value_description Character scalar describing the minimised
+#'   objective value, for example `"sum of squared distance"`.
+#' @param loss_function Function that was optimised.
+#' @param orientation Character scalar indicating which search-space orientation
+#'   produced the best result. Defaults to `"+"`; `screen_molecules()` uses
+#'   `"+"` for the normal orientation and `"-"` for the inverted orientation.
 #'
-#' @param mol1 A [`structures::Molecule3D`] object giving the
-#'   optimised coordinates of the first molecule. Defaults to an empty
-#'   `Molecule3D()` instance.
-#' @param mol2 A [`structures::Molecule3D`] object giving the
-#'   optimised coordinates of the second molecule. Defaults to an empty
-#'   `Molecule3D()` instance.
-#' @param shapeclass Name of the shape class being evaluated (character scalar),
-#'   used to identify which supramolecular geometry this optimisation result
-#'   corresponds to.
-#' @param min_sum_of_squared_distance Numeric scalar giving the
-#'   minimised sum of squared distances between the dummy atoms of each
-#'   molecule and the opposing binding atom. Formally:
-#'   \eqn{d_1^2 + d_2^2}, where \eqn{d_1} is the distance from the mol1
-#'   dummy atom to the mol2 binding atom, and \eqn{d_2} is the distance
-#'   from the mol2 dummy atom to the mol1 binding atom, evaluated at the
-#'   optimum.
-#' @param angle_between_dummy_binding_vectors Numeric scalar (radians)
-#'   giving the angle between the vector from mol1 dummy \eqn{\to} mol1
-#'   binding atom and the vector from mol2 dummy \eqn{\to} mol2 binding
-#'   atom, computed for the optimised geometry. For a “perfect” solution
-#'   this angle would be \eqn{\pi} (180 degrees).
-#' @param mol1_phi Numeric scalar (radians) giving the optimal rotation
-#'   angle applied to `mol1` about `mol1_axis` to obtain the geometrically
-#'   optimal configuration.
-#' @param mol2_phi Numeric scalar (radians) giving the optimal rotation
-#'   angle applied to `mol2` about `mol2_axis` in the optimised configuration.
-#' @param mol1_slide Numeric scalar giving the optimal distance to translate
-#'   `mol1` along `mol1_axis` (the “slide” along its symmetry axis) in the
-#'   optimised configuration.
-#' @param mol2_slide Numeric scalar giving the optimal distance to translate
-#'   `mol2` along `mol2_axis`.
-#' @param mol1_axis Numeric length-3 vector describing the Cartesian
-#'   direction of the symmetry axis about which `mol1` is rotated and slid
-#'   during optimisation.
-#' @param mol2_axis Numeric length-3 vector describing the Cartesian
-#'   direction of the symmetry axis about which `mol2` is rotated and slid
-#'   during optimisation.
-#' @param n_calls_to_fn Numeric scalar giving the number of calls to the
-#'   objective function (`fn`) made by the optimiser.
-#' @param n_calls_to_gr Numeric scalar giving the number of calls to the
-#'   gradient function (`gr`) made by the optimiser (where applicable).
-#' @param convergence Numeric scalar convergence code, typically matching
-#'   the codes returned by [stats::optim()] (e.g. `0` for successful
-#'   completion, `1` for iteration limit reached, and higher codes for
-#'   warnings or errors depending on the method).
-#' @param message Character scalar giving any additional information
-#'   returned by the optimiser (e.g. warnings, diagnostic messages).
-#'   May be `NA_character_` if no message is available.
-#' @param hessian Numeric object (typically a symmetric matrix) giving an
-#'   estimate of the Hessian at the solution. If no Hessian is available,
-#'   this is set to `NaN`. Passing `NULL` will also be stored internally
-#'   as `NaN`.
+#' @return
+#' A new `OptimisationResult` S7 object.
 #'
 #' @return
 #' A new `OptimisationResult` S7 object with the supplied molecules and
 #' all other fields initialised to their type-appropriate defaults.
 #'
-#' @examples
-#' # (Pseudo-example; real usage would normally be through an optimiser)
-#' res <- OptimisationResult(
-#'   mol1 = structures::Molecule3D(),
-#'   mol2 = structures::Molecule3D()
-#' )
-#' res@min_sum_of_squared_distance <- 0.12
-#' res@n_calls_to_fn <- 35
-#'
-#' print(res)
 #'
 #' @export
 OptimisationResult <- S7::new_class(
   name = "OptimisationResult",
   properties = list(
     shapeclass = S7::class_character,
-    mol = S7::new_property(class = structures::Molecule3D),
-    mol1 = S7::new_property(class = structures::Molecule3D),
-    mol2 = S7::new_property(class = structures::Molecule3D),
-    min_sum_of_squared_distance = S7::class_numeric,
-    angle_between_dummy_binding_vectors = S7::class_numeric,
-    mol1_phi = S7::class_numeric,
-    mol2_phi = S7::class_numeric,
-    mol1_slide = S7::class_numeric,
-    mol2_slide = S7::class_numeric,
-    mol1_axis = S7::class_numeric, # length-3 numeric
-    mol2_axis = S7::class_numeric, # length-3 numeric
-    n_calls_to_fn = S7::class_numeric,
-    n_calls_to_gr = S7::class_numeric,
-    convergence = S7::class_numeric,
-    message = S7::new_property(
-      class = S7::class_character,
-      setter = function(self, value) {
-        self@message <- if(is.null(value)) "" else value
-        self
+    # Get optimised combined molecule (no dummy atoms)
+    mol = S7::new_property(
+      class = structures::Molecule3D,
+      getter = function(self) {
+        mol1_optimal <- self@mol1_optimal
+        mol2_optimal <- self@mol2_optimal
+        mol1_binding_atom <- self@optimisation_inputs@mol1_binding_atom
+        mol2_binding_atom <- self@optimisation_inputs@mol2_binding_atom
+
+        mol_combined_optimal <- structures::combine_molecules(
+          molecule1 = mol1_optimal,
+          molecule2 = mol2_optimal,
+          create_bonds = data.frame(
+            eleno1 = mol1_binding_atom,
+            eleno2 = mol2_binding_atom,
+            bond_type = "single"
+          )
+        )
+
+        # Drop dummy atoms
+        mol_combined_optimal <- structures::remove_dummy_atoms(
+          mol_combined_optimal
+        )
+
+        # Renumber atom and bonds to be contiguous (important for file export)
+        mol_combined_optimal <- structures::renumber_atoms_and_bonds(
+          mol_combined_optimal
+        )
+
+        return(mol_combined_optimal)
       }
     ),
-    hessian = S7::new_property(
-      class = S7::class_numeric,
-      setter = function(self, value) {
-       self@hessian <- if(is.null(value)) NaN else value
-       self
-      },
-      validator = function(value){
-        if(!is.numeric(value)) return(sprintf("@hessian must be numeric, not [%s]", toString(class(value))))
-        return(NULL)
+    # Optimal mol1 structure with dummy atoms included
+    mol1_optimal = S7::new_property(
+      class = structures::Molecule3D,
+      getter = function(self) {
+        # Get data
+        mol1 <- self@optimisation_inputs@mol1
+        mol1_axis <- self@optimisation_inputs@mol1_axis@values
+        optimal_mol1_phi <- self@optimisation_outputs@mol1_phi
+        optimal_mol1_slide <- self@optimisation_outputs@mol1_slide
+
+        # Apply optimal params
+        mol1 |>
+          structures::rotate_molecule_around_vector(
+            axis = mol1_axis,
+            angle = optimal_mol1_phi
+          ) |>
+          structures::translate_molecule_by_vector(
+            move::normalise(mol1_axis) * optimal_mol1_slide
+          )
       }
-    )
+    ),
+
+    # Optimal mol2 structure with dummy atoms included
+    mol2_optimal = S7::new_property(
+      class = structures::Molecule3D,
+      getter = function(self) {
+        # Get data
+        mol2 <- self@optimisation_inputs@mol2
+        mol2_axis <- self@optimisation_inputs@mol2_axis@values
+        optimal_mol2_phi <- self@optimisation_outputs@mol2_phi
+        optimal_mol2_slide <- self@optimisation_outputs@mol2_slide
+
+        # Apply optimal params
+        mol2 |>
+          structures::rotate_molecule_around_vector(
+            axis = mol2_axis,
+            angle = optimal_mol2_phi
+          ) |>
+          structures::translate_molecule_by_vector(
+            move::normalise(mol2_axis) * optimal_mol2_slide
+          )
+      }
+    ),
+    # Compute the value between dummy binding vectors (in radians)
+    angle_between_dummy_binding_vectors = S7::new_property(
+      class = S7::class_numeric,
+      getter = function(self) {
+        # Fetch data
+        mol1_optimal <- self@mol1_optimal
+        mol2_optimal <- self@mol2_optimal
+        mol1_dummy_eleno <- self@optimisation_inputs@mol1_dummy_eleno
+        mol2_dummy_eleno <- self@optimisation_inputs@mol2_dummy_eleno
+        mol1_binding_atom <- self@optimisation_inputs@mol1_binding_atom
+        mol2_binding_atom <- self@optimisation_inputs@mol2_binding_atom
+
+        # Compute angle created by vectors dummy -> binding atom for each molecule. We'd expect this to be zero
+        mol1_pos_dummy <- structures::fetch_atom_position(
+          mol1_optimal,
+          eleno = mol1_dummy_eleno
+        )
+        mol1_pos_binding <- structures::fetch_atom_position(
+          mol1_optimal,
+          eleno = mol1_binding_atom
+        )
+        mol2_pos_dummy <- structures::fetch_atom_position(
+          mol2_optimal,
+          eleno = mol2_dummy_eleno
+        )
+        mol2_pos_binding <- structures::fetch_atom_position(
+          mol2_optimal,
+          eleno = mol2_binding_atom
+        )
+        v1 <- move::create_vector_from_start_end(
+          mol1_pos_dummy,
+          mol1_pos_binding
+        )
+        v2 <- move::create_vector_from_start_end(
+          mol2_pos_dummy,
+          mol2_pos_binding
+        )
+        angle_between_dummy_binding_vectors <- move::measure_angle_between_vectors(
+          a = v1,
+          b = v2,
+          degrees = FALSE
+        )
+        return(angle_between_dummy_binding_vectors)
+      }
+    ),
+    # Get sum of squared distance between binding and dummy atoms in optimised molecule
+    # Yes this is typic what we minimise but if in future we choose to minimise something else, we should still be able to compute this as a key metric
+    min_sum_of_squared_distance = S7::new_property(
+      class = S7::class_numeric,
+      getter = function(self) {
+        # Get data
+        mol1_optimal <- self@mol1_optimal
+        mol2_optimal <- self@mol2_optimal
+
+        mol1_dummy_eleno <- self@optimisation_inputs@mol1_dummy_eleno
+        mol2_dummy_eleno <- self@optimisation_inputs@mol2_dummy_eleno
+        mol1_binding_atom <- self@optimisation_inputs@mol1_binding_atom
+        mol2_binding_atom <- self@optimisation_inputs@mol2_binding_atom
+
+        # Compute angle created by vectors dummy -> binding atom for each molecule. We'd expect this to be zero
+        mol1_pos_dummy <- structures::fetch_atom_position(
+          mol1_optimal,
+          eleno = mol1_dummy_eleno
+        )
+        mol1_pos_binding <- structures::fetch_atom_position(
+          mol1_optimal,
+          eleno = mol1_binding_atom
+        )
+        mol2_pos_dummy <- structures::fetch_atom_position(
+          mol2_optimal,
+          eleno = mol2_dummy_eleno
+        )
+        mol2_pos_binding <- structures::fetch_atom_position(
+          mol2_optimal,
+          eleno = mol2_binding_atom
+        )
+
+        d1 <- move::measure_distance_between_two_points(
+          mol1_pos_dummy,
+          mol2_pos_binding
+        )
+        d2 <- move::measure_distance_between_two_points(
+          mol2_pos_dummy,
+          mol1_pos_binding
+        )
+
+        # Calculate the sum of square distance between the dummy atoms of each molecule and the opposing atom binding atom
+        d1^2 + d2^2
+      }
+    ),
+    # angle_between_dummy_binding_vectors = S7::class_numeric,
+    optimisation_inputs = OptimisationInputs,
+    optimisation_outputs = OptimisationResultBasic,
+    loss_function = S7::class_function,
+    minimised_value_description = S7::class_character,
+    orientation = S7::class_character
   ),
   constructor = function(
-      shapeclass = "NotSpecified",
-      mol = structures::Molecule3D(),
-      mol1 = structures::Molecule3D(),
-      mol2 = structures::Molecule3D(),
-      min_sum_of_squared_distance = NaN,
-      angle_between_dummy_binding_vectors = NaN,
-      mol1_phi = NaN,
-      mol2_phi = NaN,
-      mol1_slide = NaN,
-      mol2_slide = NaN,
-      mol1_axis = c(NaN, NaN, NaN),
-      mol2_axis = c(NaN, NaN, NaN),
-      n_calls_to_fn = 0,
-      n_calls_to_gr = 0,
-      convergence = NA_real_,
-      message = NA_character_,
-      hessian = 2) {
+    shapeclass = "NotSpecified",
+    optimisation_inputs,
+    optimisation_outputs,
+    minimised_value_description,
+    loss_function,
+    orientation = "+"
+  ) {
     S7::new_object(
       S7::S7_object(),
       shapeclass = shapeclass,
-      mol = mol,
-      mol1 = mol1,
-      mol2 = mol2,
-      min_sum_of_squared_distance = min_sum_of_squared_distance,
-      angle_between_dummy_binding_vectors = angle_between_dummy_binding_vectors,
-      mol1_phi = mol1_phi,
-      mol2_phi = mol2_phi,
-      mol1_slide = mol1_slide,
-      mol2_slide = mol2_slide,
-      mol1_axis = mol1_axis,
-      mol2_axis = mol2_axis,
-      n_calls_to_fn = n_calls_to_fn,
-      n_calls_to_gr = n_calls_to_gr,
-      convergence = convergence,
-      message = message,
-      hessian = hessian
+      optimisation_inputs = optimisation_inputs,
+      optimisation_outputs = optimisation_outputs,
+      loss_function = loss_function,
+      minimised_value_description = minimised_value_description,
+      orientation = orientation
     )
   }
 )
 
 
+## Map the convergence integer returned by base::optim() to a valid OptimisationResultBasic convergence string.
+base_optim_convergence_number_to_string <- function(convergence_numeric) {
+  cv <- as.character(convergence_numeric)
+  switch(
+    cv,
+    "0" = "successful",
+    "1" = "out of iterations",
+    "10" = "simplex degeneracy",
+    "51" = "warning",
+    "52" = "error",
+    "error"
+  )
+}
+
+
+S7::method(print, OptimisationResultBasic) <- function(x, ...) {
+  outcome <- sprintf(
+    "-> Minimised Value: %f",
+    x@minimised_value
+  )
+  optimal_paramaters <- sprintf(
+    "-> mol1_phi: %f | mol2_phi: %f | mol1_slide: %f | mol2_slide %f",
+    x@mol1_phi,
+    x@mol2_phi,
+    x@mol1_slide,
+    x@mol2_slide
+  )
+  optimisation_metrics <- sprintf(
+    "-> Method: %s | Number of function calls: %d | Number of gradient calls: %d",
+    x@method,
+    x@n_calls_to_fn,
+    x@n_calls_to_gr
+  )
+  cat(
+    sep = "\n",
+    "================================",
+    "Optimisation Result (Basic)",
+    "================================",
+    outcome,
+    optimal_paramaters,
+    optimisation_metrics,
+    "\nSee @par for optimal parameter vector"
+  )
+}
+
 ## Generics ----------------------------------------------------------------
 
 #' @export
 S7::method(print, OptimisationResult) <- function(x, ...) {
-
-  cat(sep = "\n",
-      "================================",
-      "Optimisation Result",
-      "================================",
-      sprintf("Shape Classes: %s", x@shapeclass),
-      sprintf("Minimised Sum of Squared Distance: %f", x@min_sum_of_squared_distance),
-      sprintf("Minimised Angle (pi = perfect): %f", x@angle_between_dummy_binding_vectors),
-      sprintf("Convergence: %s", x@convergence)
+  cat(
+    sep = "\n",
+    "================================",
+    "Optimisation Result",
+    "================================",
+    sprintf("Shape Classes: %s", x@shapeclass),
+    sprintf("Orientation: %s", x@orientation),
+    sprintf(
+      "Minimised %s: %f",
+      x@minimised_value_description,
+      x@optimisation_outputs@minimised_value
+    ),
+    sprintf(
+      "Minimised Angle (pi = perfect): %f",
+      x@angle_between_dummy_binding_vectors
+    ),
+    sprintf("Convergence: %s", x@optimisation_outputs@convergence)
   )
 }
 
 
 ## Non-Generics  ---------------------------------------------------------------
-is_optimisation_result <- function(x){
+is_optimisation_result <- function(x) {
   inherits(x, "symbo::OptimisationResult")
 }
 
-get_optimistation_stats <- function(x){
+get_optimistation_stats <- function(x) {
   stats <- c(
     "Shape Class" = x@shapeclass,
+    "Molecule orientation (best of 2 search spaces)" = x@orientation,
     "Minimised Sum of Squared Distance" = x@min_sum_of_squared_distance,
     "Minimised Angle (pi = perfect)" = x@angle_between_dummy_binding_vectors,
-    "Convergence" = x@convergence,
-    "Calls to Optimisation Function" = x@n_calls_to_fn,
-    "Messages/Warnings: " = x@message
+    "Method" = x@optimisation_outputs@method,
+    "Convergence" = x@optimisation_outputs@convergence,
+    "Calls to Optimisation Function" = unname(
+      x@optimisation_outputs@n_calls_to_fn
+    ),
+    "Messages/Warnings: " = unname(x@optimisation_outputs@message)
   )
 
-  df = data.frame(
+  df <- data.frame(
     Property = names(stats),
     Values = as.character(stats)
   )
@@ -355,31 +714,11 @@ get_optimistation_stats <- function(x){
 #' A new `OptimisationResultCollection` S7 object containing the supplied
 #' optimisation results.
 #'
-#' @examples
-#' # Create a couple of dummy optimisation results
-#' res1 <- OptimisationResult(shapeclass = "shapeA")
-#' res2 <- OptimisationResult(shapeclass = "shapeB")
-#'
-#' # Combine into a collection
-#' coll <- OptimisationResultCollection(
-#'   optimisations = list(res1, res2),
-#'   mol1_not_optimised = structures::Molecule3D(),
-#'   mol2_not_optimised = structures::Molecule3D()
-#' )
-#'
-#' # Print summary
-#' coll
-#'
-#' # Coerce to data.frame for further analysis
-#' df <- as.data.frame(coll)
-#' df$shapeclass
-#'
 #' @export
 OptimisationResultCollection <- S7::new_class(
   name = "OptimisationResultCollection",
 
   properties = list(
-
     mol1_not_optimised = S7::new_property(
       class = structures::Molecule3D
     ),
@@ -389,10 +728,13 @@ OptimisationResultCollection <- S7::new_class(
 
     optimisations = S7::new_property(
       class = S7::class_list,
-      validator = function(value){
-        for (val in value){
+      validator = function(value) {
+        for (val in value) {
           if (!is_optimisation_result(val)) {
-            return(sprintf("All @optimisations in OptimisationResultCollection must be an OptimisationResult object, not a [%s]", toString(class(val))))
+            return(sprintf(
+              "All @optimisations in OptimisationResultCollection must be an OptimisationResult object, not a [%s]",
+              toString(class(val))
+            ))
           }
         }
       }
@@ -400,18 +742,30 @@ OptimisationResultCollection <- S7::new_class(
     # Shape Classes that were Evaluated
     shapeclasses = S7::new_property(
       class = S7::class_character,
-      setter = function(self, value) { stop("@shapeclasses is a read only property") },
+      setter = function(self, value) {
+        stop("@shapeclasses is a read only property")
+      },
       getter = function(self) {
-        vapply(X = self@optimisations, function(o){o@shapeclass}, FUN.VALUE = character(1))
+        vapply(
+          X = self@optimisations,
+          function(o) {
+            o@shapeclass
+          },
+          FUN.VALUE = character(1)
+        )
       }
     )
   ),
-  constructor = function(optimisations = list(), mol1_not_optimised, mol2_not_optimised){
+  constructor = function(
+    optimisations = list(),
+    mol1_not_optimised,
+    mol2_not_optimised
+  ) {
     S7::new_object(
-    S7::S7_object(),
-    optimisations = optimisations,
-    mol1_not_optimised = mol1_not_optimised,
-    mol2_not_optimised = mol2_not_optimised
+      S7::S7_object(),
+      optimisations = optimisations,
+      mol1_not_optimised = mol1_not_optimised,
+      mol2_not_optimised = mol2_not_optimised
     )
   }
 )
@@ -421,19 +775,29 @@ OptimisationResultCollection <- S7::new_class(
 #' @export
 S7::method(print, OptimisationResultCollection) <- function(x, ...) {
   optimisations <- x@optimisations
-  n_optimisations = length(optimisations)
+  n_optimisations <- length(optimisations)
   df <- as.data.frame(x)
-  shapeclasses <- df$shapeclass
 
   df$summary_string <- with(
     df,
     {
-      sprintf("-> %s (D: %f | A: %f)", shapeclass, min_sum_of_squared_distance, angle_between_dummy_binding_vectors)
+      sprintf(
+        "-> %s (D: %f | A: %f | O: %s)",
+        shapeclass,
+        min_sum_of_squared_distance,
+        angle_between_dummy_binding_vectors,
+        orientation # Orientation (which of the two search spaces was this solution found in)
+      )
     }
   )
-  shapeclass_summary_string <- if(n_optimisations == 0) "" else paste0(df$summary_string, collapse = "\n")
+  shapeclass_summary_string <- if (n_optimisations == 0) {
+    ""
+  } else {
+    paste0(df$summary_string, collapse = "\n")
+  }
 
-  cat(sep = "\n",
+  cat(
+    sep = "\n",
     "================================",
     "Optimisation Result Collection",
     "================================",
@@ -447,23 +811,100 @@ S7::method(as.data.frame, OptimisationResultCollection) <- function(x, ...) {
   optimisations <- x@optimisations
 
   data.frame(
-    shapeclass = vapply(X = optimisations, function(o) { o@shapeclass }, FUN.VALUE = character(1)),
-    min_sum_of_squared_distance = vapply(X = optimisations, function(o) { o@min_sum_of_squared_distance }, FUN.VALUE = numeric(1)),
-    angle_between_dummy_binding_vectors = vapply(X = optimisations, function(o) { o@angle_between_dummy_binding_vectors }, FUN.VALUE = numeric(1)),
-    mol1_name = vapply(X = optimisations, function(o) { o@mol1@name }, FUN.VALUE = character(1)),
-    mol2_name = vapply(X = optimisations, function(o) { o@mol2@name }, FUN.VALUE = character(1)),
-    mol1_phi = vapply(X = optimisations, function(o) { o@mol1_phi }, FUN.VALUE = numeric(1)),
-    mol2_phi = vapply(X = optimisations, function(o) { o@mol2_phi }, FUN.VALUE = numeric(1)),
-    mol1_slide = vapply(X = optimisations, function(o) { o@mol1_slide }, FUN.VALUE = numeric(1)),
-    mol2_slide = vapply(X = optimisations, function(o) { o@mol2_slide }, FUN.VALUE = numeric(1)),
-    mol1_axis_x = vapply(X = optimisations, function(o) { o@mol1_axis[1] }, FUN.VALUE = numeric(1)),
-    mol1_axis_y = vapply(X = optimisations, function(o) { o@mol1_axis[2] }, FUN.VALUE = numeric(1)),
-    mol1_axis_z = vapply(X = optimisations, function(o) { o@mol1_axis[3] }, FUN.VALUE = numeric(1)),
-    mol2_axis_x = vapply(X = optimisations, function(o) { o@mol2_axis[1] }, FUN.VALUE = numeric(1)),
-    mol2_axis_y = vapply(X = optimisations, function(o) { o@mol2_axis[2] }, FUN.VALUE = numeric(1)),
-    mol2_axis_z = vapply(X = optimisations, function(o) { o@mol2_axis[3] }, FUN.VALUE = numeric(1))
+    shapeclass = vapply(
+      optimisations,
+      function(o) o@shapeclass,
+      character(1)
+    ),
+
+    orientation = vapply(
+      optimisations,
+      function(o) o@orientation,
+      character(1)
+    ),
+
+    min_sum_of_squared_distance = vapply(
+      optimisations,
+      function(o) o@min_sum_of_squared_distance,
+      numeric(1)
+    ),
+
+    angle_between_dummy_binding_vectors = vapply(
+      optimisations,
+      function(o) o@angle_between_dummy_binding_vectors,
+      numeric(1)
+    ),
+
+    mol1_name = vapply(
+      optimisations,
+      function(o) o@optimisation_inputs@mol1@name,
+      character(1)
+    ),
+
+    mol2_name = vapply(
+      optimisations,
+      function(o) o@optimisation_inputs@mol2@name,
+      character(1)
+    ),
+
+    mol1_phi = vapply(
+      optimisations,
+      function(o) o@optimisation_outputs@mol1_phi,
+      numeric(1)
+    ),
+
+    mol2_phi = vapply(
+      optimisations,
+      function(o) o@optimisation_outputs@mol2_phi,
+      numeric(1)
+    ),
+
+    mol1_slide = vapply(
+      optimisations,
+      function(o) o@optimisation_outputs@mol1_slide,
+      numeric(1)
+    ),
+
+    mol2_slide = vapply(
+      optimisations,
+      function(o) o@optimisation_outputs@mol2_slide,
+      numeric(1)
+    ),
+
+    mol1_axis_x = vapply(
+      optimisations,
+      function(o) o@optimisation_inputs@mol1_axis@x,
+      numeric(1)
+    ),
+
+    mol1_axis_y = vapply(
+      optimisations,
+      function(o) o@optimisation_inputs@mol1_axis@y,
+      numeric(1)
+    ),
+
+    mol1_axis_z = vapply(
+      optimisations,
+      function(o) o@optimisation_inputs@mol1_axis@z,
+      numeric(1)
+    ),
+
+    mol2_axis_x = vapply(
+      optimisations,
+      function(o) o@optimisation_inputs@mol2_axis@x,
+      numeric(1)
+    ),
+
+    mol2_axis_y = vapply(
+      optimisations,
+      function(o) o@optimisation_inputs@mol2_axis@y,
+      numeric(1)
+    ),
+
+    mol2_axis_z = vapply(
+      optimisations,
+      function(o) o@optimisation_inputs@mol2_axis@z,
+      numeric(1)
+    )
   )
 }
-
-## Non-Generics  ---------------------------------------------------------------
-

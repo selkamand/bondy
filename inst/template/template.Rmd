@@ -89,8 +89,8 @@ out <- list()
 
 for (optimisationresult in collection@optimisations) {
 
-  mol1 <- optimisationresult@mol1
-  mol2 <- optimisationresult@mol2
+  mol1 <- optimisationresult@mol1_optimal
+  mol2 <- optimisationresult@mol2_optimal
 
   # start a fresh rgl scene for this widget
   rgl::open3d()
@@ -154,4 +154,3 @@ reactable::reactable(
   highlight = TRUE
 )
 ```
-

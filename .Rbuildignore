@@ -11,3 +11,5 @@ screen_results.html
 ^\.github$
 ^\.positai$
 ^\.claude$
+^[.]?air[.]toml$
+^\.vscode$

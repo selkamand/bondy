@@ -24,6 +24,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Sam El-Kamand \email{selkamand@ccia.org.au} (\href{https://orcid.org/0000-0003-2270-8088}{ORCID})
   \item Matthew Wallis (\href{https://orcid.org/0009-0004-8113-9342}{ORCID})
 }
 
