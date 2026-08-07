@@ -6,17 +6,7 @@ configuration to produce shapeclasses
 ## Usage
 
 ``` r
-screen_molecules(
-  molecule1,
-  molecule2,
-  mol1_binding_atom,
-  mol2_binding_atom,
-  method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN", "Brent"),
-  lower = -Inf,
-  upper = Inf,
-  control = list(),
-  hessian = FALSE
-)
+screen_molecules(molecule1, molecule2, mol1_binding_atom, mol2_binding_atom)
 ```
 
 ## Arguments
@@ -45,12 +35,8 @@ screen_molecules(
   the atom you expect will bind to molecule1 (integer representing
   element number a.k.a eleno).
 
-- method, lower, upper, control, hessian:
-
-  optimisation algorith configuration. See
-  [`stats::optim()`](https://rdrr.io/r/stats/optim.html) for details.
-
 ## Value
 
-[`OptimisationResultCollection`](https://selkamand.github.io/symbo/reference/OptimisationResultCollection.md)
+an
+[`OptimisationResultCollection()`](https://selkamand.github.io/symbo/reference/OptimisationResultCollection.md)
 object.

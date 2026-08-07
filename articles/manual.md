@@ -134,7 +134,7 @@ print(molecule1)
 #> ===================
 #> Name: fe_dummies
 #> Atoms: 83 (3 dummy atoms)
-#> Bonds: 90
+#> Bonds: 93
 #> Molecule type: SMALL
 #> Charge type: NO_CHARGES
 #> -------------------
@@ -275,12 +275,21 @@ optimisations <- screen_molecules(
 #> ℹ Molecules [fe_dummies] and [pd_dummies] can be assessed for [1] shape class (Face-capped cube).
 #> 
 #> ── Face-capped cube ────────────────────────────────────────────────────────────
-#> ℹ Fetching the first dummy atom in each molecule
+#> ℹ Searching for optimal arrangement of molecules
+#> ℹ Fetching the first dummy atom bonded to each binding atom
 #> ℹ Rotating molecules so Symmetry Axes align with target vectors
 #> ℹ Extracting Symmetry Axes
-#> ℹ Searching for optimal arrangement of molecules
+#> ℹ Fetching the first dummy atom bonded to each binding atom
+#> ℹ Rotating molecules so Symmetry Axes align with target vectors
+#> ℹ Extracting Symmetry Axes
 #> ℹ Running optimisation (this may take a moment) ...
-#> ℹ Optimisation finished! Compiling results ...
+#> 
+#> ── Optimising + orientation ──
+#> 
+#> ── Optimising - orientation ──
+#> 
+#> ── Comparing all optimisation runs ──
+#> 
 
 # View result summary
 print(optimisations)
@@ -288,7 +297,7 @@ print(optimisations)
 #> Optimisation Result Collection
 #> ================================
 #> Shape Classes Evaluated: 1
-#> -> Face-capped cube (D: 2.464957 | A: 1.957490)
+#> -> Face-capped cube (D: 0.000000 | A: 3.141587 | O: -)
 ```
 
 Each evaluated shape class returns two diagnostic values:

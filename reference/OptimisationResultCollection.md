@@ -84,32 +84,3 @@ class produces an
 [`OptimisationResult`](https://selkamand.github.io/symbo/reference/OptimisationResult.md),
 and these are collected into a single object for printing, summarising,
 or coercion to a data frame.
-
-## Examples
-
-``` r
-# Create a couple of dummy optimisation results
-res1 <- OptimisationResult(shapeclass = "shapeA")
-res2 <- OptimisationResult(shapeclass = "shapeB")
-
-# Combine into a collection
-coll <- OptimisationResultCollection(
-  optimisations = list(res1, res2),
-  mol1_not_optimised = structures::Molecule3D(),
-  mol2_not_optimised = structures::Molecule3D()
-)
-
-# Print summary
-coll
-#> ================================
-#> Optimisation Result Collection
-#> ================================
-#> Shape Classes Evaluated: 2
-#> -> shapeA (D: NaN | A: NaN)
-#> -> shapeB (D: NaN | A: NaN)
-
-# Coerce to data.frame for further analysis
-df <- as.data.frame(coll)
-df$shapeclass
-#> [1] "shapeA" "shapeB"
-```

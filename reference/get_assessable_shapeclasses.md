@@ -25,7 +25,9 @@ get_assessable_shapeclasses(molecule1_axes, molecule2_axes)
 ## Value
 
 A `data.frame` containing all assessable geometries given the supplied
-axes. It includes all columns from `mapping`, plus:
+axes. It includes all columns from
+[`axes_to_shapeclass_reference()`](https://selkamand.github.io/symbo/reference/axes_to_shapeclass_reference.md),
+plus:
 
 - `treat_molecule2_as_1`: logical; `FALSE` if the ShapeClass is
   assessable in the forward orientation (`mol1 -> Axis1`,

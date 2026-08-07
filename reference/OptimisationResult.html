@@ -55,22 +55,11 @@ axes) and bookkeeping information returned by the optimiser.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">OptimisationResult</span><span class="op">(</span></span>
 <span>  shapeclass <span class="op">=</span> <span class="st">"NotSpecified"</span>,</span>
-<span>  mol <span class="op">=</span> <span class="fu">structures</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">Molecule3D</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  mol1 <span class="op">=</span> <span class="fu">structures</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">Molecule3D</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  mol2 <span class="op">=</span> <span class="fu">structures</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">Molecule3D</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  min_sum_of_squared_distance <span class="op">=</span> <span class="cn">NaN</span>,</span>
-<span>  angle_between_dummy_binding_vectors <span class="op">=</span> <span class="cn">NaN</span>,</span>
-<span>  mol1_phi <span class="op">=</span> <span class="cn">NaN</span>,</span>
-<span>  mol2_phi <span class="op">=</span> <span class="cn">NaN</span>,</span>
-<span>  mol1_slide <span class="op">=</span> <span class="cn">NaN</span>,</span>
-<span>  mol2_slide <span class="op">=</span> <span class="cn">NaN</span>,</span>
-<span>  mol1_axis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NaN</span>, <span class="cn">NaN</span>, <span class="cn">NaN</span><span class="op">)</span>,</span>
-<span>  mol2_axis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NaN</span>, <span class="cn">NaN</span>, <span class="cn">NaN</span><span class="op">)</span>,</span>
-<span>  n_calls_to_fn <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  n_calls_to_gr <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  convergence <span class="op">=</span> <span class="cn">NA_real_</span>,</span>
-<span>  message <span class="op">=</span> <span class="cn">NA_character_</span>,</span>
-<span>  hessian <span class="op">=</span> <span class="fl">2</span></span>
+<span>  <span class="va">optimisation_inputs</span>,</span>
+<span>  <span class="va">optimisation_outputs</span>,</span>
+<span>  <span class="va">minimised_value_description</span>,</span>
+<span>  <span class="va">loss_function</span>,</span>
+<span>  orientation <span class="op">=</span> <span class="st">"+"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -79,114 +68,38 @@ axes) and bookkeeping information returned by the optimiser.</p>
 
 
 <dl><dt id="arg-shapeclass">shapeclass<a class="anchor" aria-label="anchor" href="#arg-shapeclass"></a></dt>
-<dd><p>Name of the shape class being evaluated (character scalar),
-used to identify which supramolecular geometry this optimisation result
-corresponds to.</p></dd>
+<dd><p>Name of the shape class being evaluated (character scalar). See <code><a href="list_all_shapeclasses.html">list_all_shapeclasses()</a></code> for valid terms</p></dd>
 
 
-<dt id="arg-mol">mol<a class="anchor" aria-label="anchor" href="#arg-mol"></a></dt>
-<dd><p>A <code><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">structures::Molecule3D</a></code> object giving the
-optimised coordinates of the two combined molecules. Defaults to an empty
-<code>Molecule3D()</code> instance.</p></dd>
+<dt id="arg-optimisation-inputs">optimisation_inputs<a class="anchor" aria-label="anchor" href="#arg-optimisation-inputs"></a></dt>
+<dd><p>An <code><a href="OptimisationInputs.html">OptimisationInputs</a></code> object describing the
+oriented molecules and atom IDs used by the objective function, created using <code><a href="extract_optimisation_inputs.html">extract_optimisation_inputs()</a></code>.</p></dd>
 
 
-<dt id="arg-mol-">mol1<a class="anchor" aria-label="anchor" href="#arg-mol-"></a></dt>
-<dd><p>A <code><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">structures::Molecule3D</a></code> object giving the
-optimised coordinates of the first molecule. Defaults to an empty
-<code>Molecule3D()</code> instance.</p></dd>
+<dt id="arg-optimisation-outputs">optimisation_outputs<a class="anchor" aria-label="anchor" href="#arg-optimisation-outputs"></a></dt>
+<dd><p>An <code><a href="OptimisationResultBasic.html">OptimisationResultBasic</a></code> object containing
+the selected optimiser output.</p></dd>
 
 
-<dt id="arg-mol-">mol2<a class="anchor" aria-label="anchor" href="#arg-mol-"></a></dt>
-<dd><p>A <code><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">structures::Molecule3D</a></code> object giving the
-optimised coordinates of the second molecule. Defaults to an empty
-<code>Molecule3D()</code> instance.</p></dd>
+<dt id="arg-minimised-value-description">minimised_value_description<a class="anchor" aria-label="anchor" href="#arg-minimised-value-description"></a></dt>
+<dd><p>Character scalar describing the minimised
+objective value, for example <code>"sum of squared distance"</code>.</p></dd>
 
 
-<dt id="arg-min-sum-of-squared-distance">min_sum_of_squared_distance<a class="anchor" aria-label="anchor" href="#arg-min-sum-of-squared-distance"></a></dt>
-<dd><p>Numeric scalar giving the
-minimised sum of squared distances between the dummy atoms of each
-molecule and the opposing binding atom. Formally:
-\(d_1^2 + d_2^2\), where \(d_1\) is the distance from the mol1
-dummy atom to the mol2 binding atom, and \(d_2\) is the distance
-from the mol2 dummy atom to the mol1 binding atom, evaluated at the
-optimum.</p></dd>
+<dt id="arg-loss-function">loss_function<a class="anchor" aria-label="anchor" href="#arg-loss-function"></a></dt>
+<dd><p>Function that was optimised.</p></dd>
 
 
-<dt id="arg-angle-between-dummy-binding-vectors">angle_between_dummy_binding_vectors<a class="anchor" aria-label="anchor" href="#arg-angle-between-dummy-binding-vectors"></a></dt>
-<dd><p>Numeric scalar (radians)
-giving the angle between the vector from mol1 dummy \(\to\) mol1
-binding atom and the vector from mol2 dummy \(\to\) mol2 binding
-atom, computed for the optimised geometry. For a “perfect” solution
-this angle would be \(\pi\) (180 degrees).</p></dd>
-
-
-<dt id="arg-mol-phi">mol1_phi<a class="anchor" aria-label="anchor" href="#arg-mol-phi"></a></dt>
-<dd><p>Numeric scalar (radians) giving the optimal rotation
-angle applied to <code>mol1</code> about <code>mol1_axis</code> to obtain the geometrically
-optimal configuration.</p></dd>
-
-
-<dt id="arg-mol-phi">mol2_phi<a class="anchor" aria-label="anchor" href="#arg-mol-phi"></a></dt>
-<dd><p>Numeric scalar (radians) giving the optimal rotation
-angle applied to <code>mol2</code> about <code>mol2_axis</code> in the optimised configuration.</p></dd>
-
-
-<dt id="arg-mol-slide">mol1_slide<a class="anchor" aria-label="anchor" href="#arg-mol-slide"></a></dt>
-<dd><p>Numeric scalar giving the optimal distance to translate
-<code>mol1</code> along <code>mol1_axis</code> (the “slide” along its symmetry axis) in the
-optimised configuration.</p></dd>
-
-
-<dt id="arg-mol-slide">mol2_slide<a class="anchor" aria-label="anchor" href="#arg-mol-slide"></a></dt>
-<dd><p>Numeric scalar giving the optimal distance to translate
-<code>mol2</code> along <code>mol2_axis</code>.</p></dd>
-
-
-<dt id="arg-mol-axis">mol1_axis<a class="anchor" aria-label="anchor" href="#arg-mol-axis"></a></dt>
-<dd><p>Numeric length-3 vector describing the Cartesian
-direction of the symmetry axis about which <code>mol1</code> is rotated and slid
-during optimisation.</p></dd>
-
-
-<dt id="arg-mol-axis">mol2_axis<a class="anchor" aria-label="anchor" href="#arg-mol-axis"></a></dt>
-<dd><p>Numeric length-3 vector describing the Cartesian
-direction of the symmetry axis about which <code>mol2</code> is rotated and slid
-during optimisation.</p></dd>
-
-
-<dt id="arg-n-calls-to-fn">n_calls_to_fn<a class="anchor" aria-label="anchor" href="#arg-n-calls-to-fn"></a></dt>
-<dd><p>Numeric scalar giving the number of calls to the
-objective function (<code>fn</code>) made by the optimiser.</p></dd>
-
-
-<dt id="arg-n-calls-to-gr">n_calls_to_gr<a class="anchor" aria-label="anchor" href="#arg-n-calls-to-gr"></a></dt>
-<dd><p>Numeric scalar giving the number of calls to the
-gradient function (<code>gr</code>) made by the optimiser (where applicable).</p></dd>
-
-
-<dt id="arg-convergence">convergence<a class="anchor" aria-label="anchor" href="#arg-convergence"></a></dt>
-<dd><p>Numeric scalar convergence code, typically matching
-the codes returned by <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> (e.g. <code>0</code> for successful
-completion, <code>1</code> for iteration limit reached, and higher codes for
-warnings or errors depending on the method).</p></dd>
-
-
-<dt id="arg-message">message<a class="anchor" aria-label="anchor" href="#arg-message"></a></dt>
-<dd><p>Character scalar giving any additional information
-returned by the optimiser (e.g. warnings, diagnostic messages).
-May be <code>NA_character_</code> if no message is available.</p></dd>
-
-
-<dt id="arg-hessian">hessian<a class="anchor" aria-label="anchor" href="#arg-hessian"></a></dt>
-<dd><p>Numeric object (typically a symmetric matrix) giving an
-estimate of the Hessian at the solution. If no Hessian is available,
-this is set to <code>NaN</code>. Passing <code>NULL</code> will also be stored internally
-as <code>NaN</code>.</p></dd>
+<dt id="arg-orientation">orientation<a class="anchor" aria-label="anchor" href="#arg-orientation"></a></dt>
+<dd><p>Character scalar indicating which search-space orientation
+produced the best result. Defaults to <code>"+"</code>; <code><a href="screen_molecules.html">screen_molecules()</a></code> uses
+<code>"+"</code> for the normal orientation and <code>"-"</code> for the inverted orientation.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A new <code>OptimisationResult</code> S7 object with the supplied molecules and
+    <p>A new <code>OptimisationResult</code> S7 object.</p>
+<p>A new <code>OptimisationResult</code> S7 object with the supplied molecules and
 all other fields initialised to their type-appropriate defaults.</p>
     </div>
     <div class="section level2">
@@ -195,25 +108,54 @@ all other fields initialised to their type-appropriate defaults.</p>
 
 
 <p>The class has the following properties:</p>
-<dl>
-
-.  <dt>mol</dt>
-<dd><p>A <code><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">structures::Molecule3D</a></code> object representing
-the two input molecules combined in their geometrically optimised form (i.e.,
-after applying the optimal rotation/translation that minimises
-<code>min_sum_of_squared_distance</code>).</p></dd>
+<dl><dt>shapeclass</dt>
+<dd><p>Character scalar naming the assessed shape class.</p></dd>
 
 
-<dt>mol1</dt>
-<dd><p>A <code><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">structures::Molecule3D</a></code> object representing
-the first input molecule in its geometrically optimised form (i.e.,
-after applying the optimal rotation/translation that minimises
-<code>min_sum_of_squared_distance</code>).</p></dd>
+<dt>optimisation_inputs</dt>
+<dd><p>An <code><a href="OptimisationInputs.html">OptimisationInputs</a></code> object containing the
+oriented molecules, symmetry-axis vectors, dummy atom IDs, and binding atom
+IDs used to build the loss function.</p></dd>
 
 
-<dt>mol2</dt>
-<dd><p>A <code><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">structures::Molecule3D</a></code> object representing
-the second input molecule in its geometrically optimised form.</p></dd>
+<dt>optimisation_outputs</dt>
+<dd><p>An <code><a href="OptimisationResultBasic.html">OptimisationResultBasic</a></code> object returned
+by the selected optimiser. It stores the optimal rotation/slide parameters,
+minimised objective value, method, convergence status, call counts, and
+message.</p></dd>
+
+
+<dt>loss_function</dt>
+<dd><p>The objective function that was optimised.</p></dd>
+
+
+<dt>minimised_value_description</dt>
+<dd><p>Character scalar describing what the
+stored objective value represents.</p></dd>
+
+
+<dt>orientation</dt>
+<dd><p>Character scalar identifying which of the two
+search-space orientations produced the best result. <code>"+"</code> is the normal
+orientation; <code>"-"</code> is the inverted symmetry-axis orientation.</p></dd>
+
+
+<dt>mol1_optimal</dt>
+<dd><p>Read-only <code><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">structures::Molecule3D</a></code> object giving
+molecule 1 after applying the optimal rotation and slide from
+<code>optimisation_outputs</code>. Dummy atoms are retained.</p></dd>
+
+
+<dt>mol2_optimal</dt>
+<dd><p>Read-only <code><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">structures::Molecule3D</a></code> object giving
+molecule 2 after applying the optimal rotation and slide from
+<code>optimisation_outputs</code>. Dummy atoms are retained.</p></dd>
+
+
+<dt>mol</dt>
+<dd><p>Read-only <code><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">structures::Molecule3D</a></code> object containing the
+optimised combined molecule. The two binding atoms are bonded, dummy atoms
+are removed, and atoms/bonds are renumbered for export.</p></dd>
 
 
 <dt>min_sum_of_squared_distance</dt>
@@ -234,74 +176,6 @@ atom, computed for the optimised geometry. For a “perfect” solution
 this angle would be \(\pi\) (180 degrees).</p></dd>
 
 
-<dt>mol1_phi</dt>
-<dd><p>Numeric scalar (radians): the optimal rotation angle
-applied to <code>mol1</code> about <code>mol1_axis</code> to obtain the geometrically
-optimal configuration.</p></dd>
-
-
-<dt>mol2_phi</dt>
-<dd><p>Numeric scalar (radians): the optimal rotation angle
-applied to <code>mol2</code> about <code>mol2_axis</code>.</p></dd>
-
-
-<dt>mol1_slide</dt>
-<dd><p>Numeric scalar giving the optimal distance to
-translate <code>mol1</code> along <code>mol1_axis</code> (the “slide” along the axis)
-in the optimal configuration.</p></dd>
-
-
-<dt>mol2_slide</dt>
-<dd><p>Numeric scalar giving the optimal distance to
-translate <code>mol2</code> along <code>mol2_axis</code>.</p></dd>
-
-
-<dt>mol1_axis</dt>
-<dd><p>Numeric length-3 vector describing the Cartesian
-direction of the symmetry axis about which <code>mol1</code> was rotated and
-along which it was slid during optimisation.</p></dd>
-
-
-<dt>mol2_axis</dt>
-<dd><p>Numeric length-3 vector describing the corresponding
-axis for <code>mol2</code>.</p></dd>
-
-
-<dt>n_calls_to_fn</dt>
-<dd><p>Numeric scalar giving the number of calls to
-the objective function (<code>fn</code>) made by the optimiser.</p></dd>
-
-
-<dt>n_calls_to_gr</dt>
-<dd><p>Numeric scalar giving the number of calls to
-the gradient function (<code>gr</code>) made by the optimiser (where applicable).</p></dd>
-
-
-<dt>convergence</dt>
-<dd><p>Numeric scalar convergence code, typically matching
-the codes returned by <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code>. For example:</p><ul><li><p><code>0</code> – successful completion (method-dependent).</p></li>
-<li><p><code>1</code> – iteration limit (<code>maxit</code>) reached.</p></li>
-<li><p><code>10</code> – degeneracy of the Nelder–Mead simplex.</p></li>
-<li><p><code>51</code> – warning from method <code>"L-BFGS-B"</code> (see <code>message</code>).</p></li>
-<li><p><code>52</code> – error from method <code>"L-BFGS-B"</code> (see <code>message</code>).</p></li>
-</ul><p>See the documentation of the optimisation routine for exact meanings.</p></dd>
-
-
-<dt>message</dt>
-<dd><p>Character scalar giving any additional information
-returned by the optimiser (e.g. warnings, diagnostic messages). May be
-<code>NA_character_</code> if no message is available.</p></dd>
-
-
-<dt>hessian</dt>
-<dd><p>Numeric object (typically a symmetric matrix) giving an
-estimate of the Hessian at the solution, if available. This is usually
-the Hessian of the <em>unconstrained</em> problem, even if box constraints are
-active. If the optimisation was run without requesting a Hessian, this
-property is set to <code>NaN</code>. Assigning <code>NULL</code> to <code>hessian</code> will also store
-<code>NaN</code> internally.</p></dd>
-
-
 
 </dl></div>
     <div class="section level2">
@@ -310,32 +184,10 @@ property is set to <code>NaN</code>. Assigning <code>NULL</code> to <code>hessia
 
 
 <p>Instances of <code>OptimisationResult</code> are usually created internally by
-higher-level alignment / docking routines, and returned as a structured
-record of the optimisation outcome for a given shape class or binding
-mode.</p>
+higher-level methods and returned as a structured
+record of the optimisation outcome for a given shape class, molecule orientation, or optimisation approach</p>
     </div>
 
-    <div class="section level2">
-    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># (Pseudo-example; real usage would normally be through an optimiser)</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">OptimisationResult</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  mol1 <span class="op">=</span> <span class="fu">structures</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">Molecule3D</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  mol2 <span class="op">=</span> <span class="fu">structures</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/structures/man/Molecule3D.html" class="external-link">Molecule3D</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">res</span><span class="op">@</span><span class="va">min_sum_of_squared_distance</span> <span class="op">&lt;-</span> <span class="fl">0.12</span></span></span>
-<span class="r-in"><span><span class="va">res</span><span class="op">@</span><span class="va">n_calls_to_fn</span> <span class="op">&lt;-</span> <span class="fl">35</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ================================</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Optimisation Result</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ================================</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Shape Classes: NotSpecified</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Minimised Sum of Squared Distance: 0.120000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Minimised Angle (pi = perfect): NaN</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Convergence: NA</span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
-    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
