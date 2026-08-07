@@ -731,25 +731,6 @@ get_optimistation_stats <- function(x) {
 #' A new `OptimisationResultCollection` S7 object containing the supplied
 #' optimisation results.
 #'
-#' @examples
-#' # Create a couple of dummy optimisation results
-#' res1 <- OptimisationResult(shapeclass = "shapeA")
-#' res2 <- OptimisationResult(shapeclass = "shapeB")
-#'
-#' # Combine into a collection
-#' coll <- OptimisationResultCollection(
-#'   optimisations = list(res1, res2),
-#'   mol1_not_optimised = structures::Molecule3D(),
-#'   mol2_not_optimised = structures::Molecule3D()
-#' )
-#'
-#' # Print summary
-#' coll
-#'
-#' # Coerce to data.frame for further analysis
-#' df <- as.data.frame(coll)
-#' df$shapeclass
-#'
 #' @export
 OptimisationResultCollection <- S7::new_class(
   name = "OptimisationResultCollection",
