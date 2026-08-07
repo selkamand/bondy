@@ -17,6 +17,9 @@ screen_molecules(molecule1, molecule2, mol1_binding_atom, mol2_binding_atom)
 
 \item{method, lower, upper, control, hessian}{optimisation algorith configuration. See \code{\link[stats:optim]{stats::optim()}} for details.}
 }
+\value{
+an \code{\link[=OptimisationResultCollection]{OptimisationResultCollection()}} object.
+}
 \description{
 Screens a pair of molecules to find their most geometrically optimal configuration to produce shapeclasses
 }

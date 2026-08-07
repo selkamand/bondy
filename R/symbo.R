@@ -10,8 +10,7 @@
 #' @param mol2_binding_atom the atom you expect will bind to molecule1 (integer representing element number a.k.a eleno).
 #' @param method,lower,upper,control,hessian optimisation algorith configuration. See [stats::optim()] for details.
 #'
-#' @inherit find_optimal_position return
-#'
+#' @return an [OptimisationResultCollection()] object.
 #' @export
 screen_molecules <- function(
   molecule1,
@@ -110,9 +109,7 @@ screen_molecules <- function(
 
 #' Generate Optimisation functoin
 #'
-#'
-#' @inherit find_optimal_position
-#'
+#' @param input an [OptimisationInputs()] object created from [extract_optimisation_inputs()].
 #'
 #' @return a function that takes one argument x, a length-4 vector of paramaters to find optimal configuration of c(mol1_phi, mol1_slide, mol2_phi, mol2_slide)
 #' and returns the sum of squared distance between mol1 binding attom and mol2 dummy atom + mol2 binding atom and mol1 dummy atom.
