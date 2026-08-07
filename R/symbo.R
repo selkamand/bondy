@@ -63,12 +63,14 @@ screen_molecules <- function(
     fn_loss <- generate_loss_function(optimisation_inputs)
 
     # Optimise the distance between dummy atom of 1 molecule and binding atom of the other
-    cli::cli_alert_info("Running optimisation (this may take a moment) ... ")
+    cli::cli_alert_info(
+      "Running optimisation (this may take a moment) ... "
+    )
 
     # Find paramaters that minimise the loss function by L-BFGS-B (returns OptimisationResultBasic() object)
     optimisation_outputs <- optimise_L_BFGS_B(fn_loss)
 
-    # Enrich the optimisation results
+    # Enrich the optimisation results so we have a single object that describes all the information we might need
     optimisation <- OptimisationResult(
       shapeclass,
       optimisation_inputs,
@@ -77,23 +79,6 @@ screen_molecules <- function(
       minimised_value_description = "sum of squared distance"
     )
 
-    # optimisation <- find_optimal_position(
-    #   mol1 = input$mol1,
-    #   mol2 = input$mol2,
-    #   mol1_axis = input$mol1_axis,
-    #   mol2_axis = input$mol2_axis,
-    #   mol1_dummy_eleno = input$mol1_dummy_eleno,
-    #   mol2_dummy_eleno = input$mol2_dummy_eleno,
-    #   mol1_binding_atom = input$mol1_binding_atom,
-    #   mol2_binding_atom = input$mol2_binding_atom,
-    #   method = method,
-    #   lower = lower,
-    #   upper = upper,
-    #   control = control,
-    #   hessian = hessian
-    # )
-
-    optimisation@shapeclass <- shapeclass
     return(optimisation)
   })
 
@@ -228,7 +213,11 @@ extract_optimisation_inputs <- function(
   assertions::assert_one_of(shapeclass, list_all_shapeclasses())
 
   # Step 2: list all assessable shapeclasses
-  df_assessable_all <- get_assessable_shapeclasses_from_molecules(mol1, mol2)
+  df_assessable_all <- get_assessable_shapeclasses_from_molecules(
+    mol1,
+    mol2,
+    verbose = FALSE
+  )
 
   # Step 3: Grab the shapeclass mapping information for the user-supplied shapeclass
   df_assessable <- df_assessable_all[
@@ -463,8 +452,8 @@ list_all_shapeclasses <- function() {
 #' @export
 get_assessable_shapeclasses <- function(molecule1_axes, molecule2_axes) {
   # Coerce to integer (in case user passes characters like "2", "3")
-  mol1 <- as.integer(molecule1_axes)
-  mol2 <- as.integer(molecule2_axes)
+  # mol1 <- as.integer(molecule1_axes)
+  # mol2 <- as.integer(molecule2_axes)
 
   df_combos <- create_combos(molecule1_axes, molecule2_axes)
 
@@ -496,12 +485,18 @@ get_assessable_shapeclasses <- function(molecule1_axes, molecule2_axes) {
 #' @param molecule2 a [Molecule3D()] object annotated with its proper rotation axes
 #'
 #'
-get_assessable_shapeclasses_from_molecules <- function(molecule1, molecule2) {
+get_assessable_shapeclasses_from_molecules <- function(
+  molecule1,
+  molecule2,
+  verbose = TRUE
+) {
   assertions::assert_class(molecule1, class = "structures::Molecule3D")
   assertions::assert_class(molecule2, class = "structures::Molecule3D")
 
   # Fetch Assessable shapeclasses
-  cli::cli_alert_info("Figuring out which shape classes are assessable")
+  if (verbose) {
+    cli::cli_alert_info("Figuring out which shape classes are assessable")
+  }
   molecule1_name <- molecule1@name
   molecule2_name <- molecule2@name
   molecule1_proper_rotation_axes <- molecule1@symmetry_elements@unique_proper_axis_orders
@@ -519,16 +514,18 @@ get_assessable_shapeclasses_from_molecules <- function(molecule1, molecule2) {
     )
   }
 
-  cli::cli_alert_info(sprintf(
-    "Molecule 1 [%s] has [%s]",
-    molecule1_name,
-    toString(paste0("C", molecule1_proper_rotation_axes))
-  ))
-  cli::cli_alert_info(sprintf(
-    "Molecule 2 [%s] has [%s]",
-    molecule2_name,
-    toString(paste0("C", molecule2_proper_rotation_axes))
-  ))
+  if (verbose) {
+    cli::cli_alert_info(sprintf(
+      "Molecule 1 [%s] has [%s]",
+      molecule1_name,
+      toString(paste0("C", molecule1_proper_rotation_axes))
+    ))
+    cli::cli_alert_info(sprintf(
+      "Molecule 2 [%s] has [%s]",
+      molecule2_name,
+      toString(paste0("C", molecule2_proper_rotation_axes))
+    ))
+  }
 
   df_assessable <- get_assessable_shapeclasses(
     molecule1_axes = molecule1_proper_rotation_axes,

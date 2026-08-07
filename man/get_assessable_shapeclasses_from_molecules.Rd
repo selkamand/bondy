@@ -4,7 +4,11 @@
 \alias{get_assessable_shapeclasses_from_molecules}
 \title{Get assessable shapeclasses from molecule objects}
 \usage{
-get_assessable_shapeclasses_from_molecules(molecule1, molecule2)
+get_assessable_shapeclasses_from_molecules(
+  molecule1,
+  molecule2,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{molecule1}{a \code{\link[structures:Molecule3D]{Molecule3D()}} object annotated with its proper rotation axes}
