@@ -794,16 +794,16 @@ S7::method(print, OptimisationResultCollection) <- function(x, ...) {
   optimisations <- x@optimisations
   n_optimisations <- length(optimisations)
   df <- as.data.frame(x)
-  shapeclasses <- df$shapeclass
 
   df$summary_string <- with(
     df,
     {
       sprintf(
-        "-> %s (D: %f | A: %f)",
+        "-> %s (D: %f | A: %f | O: %s)",
         shapeclass,
         min_sum_of_squared_distance,
-        angle_between_dummy_binding_vectors
+        angle_between_dummy_binding_vectors,
+        orientation # Orientation (which of the two search spaces was this solution found in)
       )
     }
   )
@@ -831,6 +831,12 @@ S7::method(as.data.frame, OptimisationResultCollection) <- function(x, ...) {
     shapeclass = vapply(
       optimisations,
       function(o) o@shapeclass,
+      character(1)
+    ),
+
+    orientation = vapply(
+      optimisations,
+      function(o) o@orientation,
       character(1)
     ),
 
