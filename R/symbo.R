@@ -589,7 +589,7 @@ get_assessable_shapeclasses <- function(molecule1_axes, molecule2_axes) {
 #' Get assessable shapeclasses from molecule objects
 #'
 #' A simple wrapper around get_assessable_shapeclasses that works from molecule3D objects,
-#' # not just the axes. Throws informative errors when shapeclasses cannot be found
+#' not just the axes. Throws informative errors when shapeclasses cannot be found
 #'
 #' @inherit get_assessable_shapeclasses return details
 #'

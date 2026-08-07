@@ -11,7 +11,7 @@
 #' @export
 optimise_L_BFGS_B <- function(fn) {
   assertions::assert_function(fn)
-  result <- optim(
+  result <- stats::optim(
     par = c(mol1_phi = 90, mol1_slide = 0, mol2_phi = 90, mol2_slide = 0),
     method = "L-BFGS-B",
     fn = fn,
@@ -58,7 +58,7 @@ optimise_L_BFGS_B <- function(fn) {
 #' @export
 optimise_surface_annealing <- function(fn) {
   assertions::assert_function(fn)
-  result <- optim(
+  result <- stats::optim(
     par = c(mol1_phi = 90, mol1_slide = 0, mol2_phi = 90, mol2_slide = 0),
     method = "SANN",
     fn = fn

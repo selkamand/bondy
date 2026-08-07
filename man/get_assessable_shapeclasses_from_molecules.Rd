@@ -28,6 +28,7 @@ If no geometries are assessable, an empty \code{data.frame} is returned.
 }
 \description{
 A simple wrapper around get_assessable_shapeclasses that works from molecule3D objects,
+not just the axes. Throws informative errors when shapeclasses cannot be found
 }
 \details{
 Geometries are matched in two orientations:
@@ -42,7 +43,3 @@ For geometries that are only assessable in the swapped orientation,
 \code{treat_molecule2_as_1} is set to \code{TRUE} to indicate that
 downstream code should treat molecule 2 as molecule 1.
 }
-\section{not just the axes. Throws informative errors when shapeclasses cannot be found}{
-
-}
-
