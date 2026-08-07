@@ -68,7 +68,13 @@ screen_molecules <- function(
     )
 
     # Find paramaters that minimise the loss function by L-BFGS-B (returns OptimisationResultBasic() object)
-    optimisation_outputs <- optimise_L_BFGS_B(fn_loss)
+    optimisation_outputs_l_bfgs_b <- optimise_L_BFGS_B(fn_loss)
+    optimisation_outputs_sann <- optimise_surface_annealing(fn_loss)
+
+    optimisation_outputs <- pick_best_result(
+      optimisation_outputs_l_bfgs_b,
+      optimisation_outputs_sann
+    )
 
     # Enrich the optimisation results so we have a single object that describes all the information we might need
     optimisation <- OptimisationResult(
@@ -89,6 +95,24 @@ screen_molecules <- function(
   )
 }
 
+pick_best_result <- function(optimisation_output_1, optimisation_output_2) {
+  minimised_val_1 <- optimisation_output_1@minimised_value
+  minimised_val_2 <- optimisation_output_2@minimised_value
+
+  if (is.null(minimised_val_2) | is.na(minimised_val_2)) {
+    return(optimisation_output_1)
+  } else if (is.null(minimised_val_1) | is.na(minimised_val_1)) {
+    return(optimisation_output_2)
+  } else if (minimised_val_1 >= minimised_val_2) {
+    return(optimisation_output_2)
+  } else if (minimised_val_1 < minimised_val_2) {
+    return(optimisation_output_1)
+  } else {
+    stop(
+      "Should never reach this fallthrough condition. Bug in symbo. Please report"
+    )
+  }
+}
 
 # Optimisation ------------------------------------------------------------
 

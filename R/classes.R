@@ -107,6 +107,7 @@ OptimisationResultBasic <- S7::new_class(
   name = "OptimisationResultBasic",
   properties = list(
     minimised_value = S7::class_numeric,
+    method = S7::class_character,
     mol1_phi = S7::class_numeric,
     mol2_phi = S7::class_numeric,
     mol1_slide = S7::class_numeric,
@@ -170,6 +171,7 @@ OptimisationResultBasic <- S7::new_class(
   ),
   constructor = function(
     minimised_value = NaN,
+    method = "Not specified",
     mol1_phi = NaN,
     mol2_phi = NaN,
     mol1_slide = NaN,
@@ -190,6 +192,7 @@ OptimisationResultBasic <- S7::new_class(
     S7::new_object(
       S7::S7_object(),
       minimised_value = minimised_value,
+      method = method,
       mol1_phi = mol1_phi,
       mol2_phi = mol2_phi,
       mol1_slide = mol1_slide,
@@ -598,7 +601,8 @@ S7::method(print, OptimisationResultBasic) <- function(x, ...) {
     x@mol2_slide
   )
   optimisation_metrics <- sprintf(
-    "-> Number of function calls: %d | Number of gradient calls: %d",
+    "-> Method: %s | Number of function calls: %d | Number of gradient calls: %d",
+    x@method,
     x@n_calls_to_fn,
     x@n_calls_to_gr
   )
@@ -648,6 +652,7 @@ get_optimistation_stats <- function(x) {
     "Shape Class" = x@shapeclass,
     "Minimised Sum of Squared Distance" = x@min_sum_of_squared_distance,
     "Minimised Angle (pi = perfect)" = x@angle_between_dummy_binding_vectors,
+    "Method" = x@optimisation_outputs@method,
     "Convergence" = x@optimisation_outputs@convergence,
     "Calls to Optimisation Function" = unname(
       x@optimisation_outputs@n_calls_to_fn

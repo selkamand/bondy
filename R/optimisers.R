@@ -9,7 +9,7 @@
 #' @return A [OptimisationResultBasic()] object
 #'
 #' @export
-optimise_L_BFGS_B <- function(fn, minimised_value_description) {
+optimise_L_BFGS_B <- function(fn) {
   assertions::assert_function(fn)
   result <- optim(
     par = c(mol1_phi = 90, mol1_slide = 0, mol2_phi = 90, mol2_slide = 0),
@@ -34,6 +34,42 @@ optimise_L_BFGS_B <- function(fn, minimised_value_description) {
 
   OptimisationResultBasic(
     minimised_value = result$value,
+    method = "L-BFGS-B",
+    mol1_phi = result$par[1],
+    mol1_slide = result$par[2],
+    mol2_phi = result$par[3],
+    mol2_slide = result$par[4],
+    n_calls_to_fn = result$counts[1],
+    n_calls_to_gr = result$counts[2],
+    message = result$message,
+    convergence = convergence_string
+  )
+}
+
+#' Minimise a loss function by surface annealing
+#'
+#' Optimise a function produced by [generate_loss_function()] using surface annealing
+#'
+#'
+#' @param fn a function that takes a vector of 4 numeric elements corresponding to c(mol1_phi, mol1_slide, mol2_phi, mol2_slide)
+#'
+#' @return A [OptimisationResultBasic()] object
+#'
+#' @export
+optimise_surface_annealing <- function(fn) {
+  assertions::assert_function(fn)
+  result <- optim(
+    par = c(mol1_phi = 90, mol1_slide = 0, mol2_phi = 90, mol2_slide = 0),
+    method = "SANN",
+    fn = fn
+  )
+  convergence_string <- base_optim_convergence_number_to_string(
+    result$convergence
+  )
+
+  OptimisationResultBasic(
+    minimised_value = result$value,
+    method = "surface annealing",
     mol1_phi = result$par[1],
     mol1_slide = result$par[2],
     mol2_phi = result$par[3],

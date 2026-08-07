@@ -6,6 +6,7 @@
 \usage{
 OptimisationResultBasic(
   minimised_value = NaN,
+  method = "Not specified",
   mol1_phi = NaN,
   mol2_phi = NaN,
   mol1_slide = NaN,
