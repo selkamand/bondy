@@ -229,18 +229,37 @@ OptimisationResultBasic <- S7::new_class(
 #'
 #' \describe{
 #'
-#'.  \item{mol}{A [`structures::Molecule3D`] object representing
-#'   the two input molecules combined in their geometrically optimised form (i.e.,
-#'   after applying the optimal rotation/translation that minimises
-#'   `min_sum_of_squared_distance`).}
+#'   \item{shapeclass}{Character scalar naming the assessed shape class.}
 #'
-#'   \item{mol1}{A [`structures::Molecule3D`] object representing
-#'   the first input molecule in its geometrically optimised form (i.e.,
-#'   after applying the optimal rotation/translation that minimises
-#'   `min_sum_of_squared_distance`).}
+#'   \item{optimisation_inputs}{An [`OptimisationInputs`] object containing the
+#'   oriented molecules, symmetry-axis vectors, dummy atom IDs, and binding atom
+#'   IDs used to build the loss function.}
 #'
-#'   \item{mol2}{A [`structures::Molecule3D`] object representing
-#'   the second input molecule in its geometrically optimised form.}
+#'   \item{optimisation_outputs}{An [`OptimisationResultBasic`] object returned
+#'   by the selected optimiser. It stores the optimal rotation/slide parameters,
+#'   minimised objective value, method, convergence status, call counts, and
+#'   message.}
+#'
+#'   \item{loss_function}{The objective function that was optimised.}
+#'
+#'   \item{minimised_value_description}{Character scalar describing what the
+#'   stored objective value represents.}
+#'
+#'   \item{orientation}{Character scalar identifying which of the two
+#'   search-space orientations produced the best result. `"+"` is the normal
+#'   orientation; `"-"` is the inverted symmetry-axis orientation.}
+#'
+#'   \item{mol1_optimal}{Read-only [`structures::Molecule3D`] object giving
+#'   molecule 1 after applying the optimal rotation and slide from
+#'   `optimisation_outputs`. Dummy atoms are retained.}
+#'
+#'   \item{mol2_optimal}{Read-only [`structures::Molecule3D`] object giving
+#'   molecule 2 after applying the optimal rotation and slide from
+#'   `optimisation_outputs`. Dummy atoms are retained.}
+#'
+#'   \item{mol}{Read-only [`structures::Molecule3D`] object containing the
+#'   optimised combined molecule. The two binding atoms are bonded, dummy atoms
+#'   are removed, and atoms/bonds are renumbered for export.}
 #'
 #'   \item{min_sum_of_squared_distance}{Numeric scalar giving the
 #'   minimised sum of squared distances between the dummy atoms of each
@@ -256,120 +275,27 @@ OptimisationResultBasic <- S7::new_class(
 #'   atom, computed for the optimised geometry. For a “perfect” solution
 #'   this angle would be \eqn{\pi} (180 degrees).}
 #'
-#'   \item{mol1_phi}{Numeric scalar (radians): the optimal rotation angle
-#'   applied to `mol1` about `mol1_axis` to obtain the geometrically
-#'   optimal configuration.}
-#'
-#'   \item{mol2_phi}{Numeric scalar (radians): the optimal rotation angle
-#'   applied to `mol2` about `mol2_axis`.}
-#'
-#'   \item{mol1_slide}{Numeric scalar giving the optimal distance to
-#'   translate `mol1` along `mol1_axis` (the “slide” along the axis)
-#'   in the optimal configuration.}
-#'
-#'   \item{mol2_slide}{Numeric scalar giving the optimal distance to
-#'   translate `mol2` along `mol2_axis`.}
-#'
-#'   \item{mol1_axis}{Numeric length-3 vector describing the Cartesian
-#'   direction of the symmetry axis about which `mol1` was rotated and
-#'   along which it was slid during optimisation.}
-#'
-#'   \item{mol2_axis}{Numeric length-3 vector describing the corresponding
-#'   axis for `mol2`.}
-#'
-#'   \item{n_calls_to_fn}{Numeric scalar giving the number of calls to
-#'   the objective function (`fn`) made by the optimiser.}
-#'
-#'   \item{n_calls_to_gr}{Numeric scalar giving the number of calls to
-#'   the gradient function (`gr`) made by the optimiser (where applicable).}
-#'
-#'   \item{convergence}{Numeric scalar convergence code, typically matching
-#'   the codes returned by [stats::optim()]. For example:
-#'   \itemize{
-#'     \item `0` – successful completion (method-dependent).
-#'     \item `1` – iteration limit (`maxit`) reached.
-#'     \item `10` – degeneracy of the Nelder–Mead simplex.
-#'     \item `51` – warning from method `"L-BFGS-B"` (see `message`).
-#'     \item `52` – error from method `"L-BFGS-B"` (see `message`).
-#'   }
-#'   See the documentation of the optimisation routine for exact meanings.}
-#'
-#'   \item{message}{Character scalar giving any additional information
-#'   returned by the optimiser (e.g. warnings, diagnostic messages). May be
-#'   `NA_character_` if no message is available.}
-#'
-#'   \item{hessian}{Numeric object (typically a symmetric matrix) giving an
-#'   estimate of the Hessian at the solution, if available. This is usually
-#'   the Hessian of the *unconstrained* problem, even if box constraints are
-#'   active. If the optimisation was run without requesting a Hessian, this
-#'   property is set to `NaN`. Assigning `NULL` to `hessian` will also store
-#'   `NaN` internally.}
-#'
 #' }
 #'
 #' @section Typical usage:
 #'
 #' Instances of `OptimisationResult` are usually created internally by
-#' higher-level alignment / docking routines, and returned as a structured
-#' record of the optimisation outcome for a given shape class or binding
-#' mode.
+#' higher-level methods and returned as a structured
+#' record of the optimisation outcome for a given shape class, molecule orientation, or optimisation approach
 #'
-#' @param mol A [`structures::Molecule3D`] object giving the
-#'   optimised coordinates of the two combined molecules. Defaults to an empty
-#'   `Molecule3D()` instance.
+#' @param optimisation_inputs An [`OptimisationInputs`] object describing the
+#'   oriented molecules and atom IDs used by the objective function, created using [extract_optimisation_inputs()].
+#' @param optimisation_outputs An [`OptimisationResultBasic`] object containing
+#'   the selected optimiser output.
+#' @param minimised_value_description Character scalar describing the minimised
+#'   objective value, for example `"sum of squared distance"`.
+#' @param loss_function Function that was optimised.
+#' @param orientation Character scalar indicating which search-space orientation
+#'   produced the best result. Defaults to `"+"`; `screen_molecules()` uses
+#'   `"+"` for the normal orientation and `"-"` for the inverted orientation.
 #'
-#' @param mol1 A [`structures::Molecule3D`] object giving the
-#'   optimised coordinates of the first molecule. Defaults to an empty
-#'   `Molecule3D()` instance.
-#' @param mol2 A [`structures::Molecule3D`] object giving the
-#'   optimised coordinates of the second molecule. Defaults to an empty
-#'   `Molecule3D()` instance.
-#' @param shapeclass Name of the shape class being evaluated (character scalar),
-#'   used to identify which supramolecular geometry this optimisation result
-#'   corresponds to.
-#' @param min_sum_of_squared_distance Numeric scalar giving the
-#'   minimised sum of squared distances between the dummy atoms of each
-#'   molecule and the opposing binding atom. Formally:
-#'   \eqn{d_1^2 + d_2^2}, where \eqn{d_1} is the distance from the mol1
-#'   dummy atom to the mol2 binding atom, and \eqn{d_2} is the distance
-#'   from the mol2 dummy atom to the mol1 binding atom, evaluated at the
-#'   optimum.
-#' @param angle_between_dummy_binding_vectors Numeric scalar (radians)
-#'   giving the angle between the vector from mol1 dummy \eqn{\to} mol1
-#'   binding atom and the vector from mol2 dummy \eqn{\to} mol2 binding
-#'   atom, computed for the optimised geometry. For a “perfect” solution
-#'   this angle would be \eqn{\pi} (180 degrees).
-#' @param mol1_phi Numeric scalar (radians) giving the optimal rotation
-#'   angle applied to `mol1` about `mol1_axis` to obtain the geometrically
-#'   optimal configuration.
-#' @param mol2_phi Numeric scalar (radians) giving the optimal rotation
-#'   angle applied to `mol2` about `mol2_axis` in the optimised configuration.
-#' @param mol1_slide Numeric scalar giving the optimal distance to translate
-#'   `mol1` along `mol1_axis` (the “slide” along its symmetry axis) in the
-#'   optimised configuration.
-#' @param mol2_slide Numeric scalar giving the optimal distance to translate
-#'   `mol2` along `mol2_axis`.
-#' @param mol1_axis Numeric length-3 vector describing the Cartesian
-#'   direction of the symmetry axis about which `mol1` is rotated and slid
-#'   during optimisation.
-#' @param mol2_axis Numeric length-3 vector describing the Cartesian
-#'   direction of the symmetry axis about which `mol2` is rotated and slid
-#'   during optimisation.
-#' @param n_calls_to_fn Numeric scalar giving the number of calls to the
-#'   objective function (`fn`) made by the optimiser.
-#' @param n_calls_to_gr Numeric scalar giving the number of calls to the
-#'   gradient function (`gr`) made by the optimiser (where applicable).
-#' @param convergence Numeric scalar convergence code, typically matching
-#'   the codes returned by [stats::optim()] (e.g. `0` for successful
-#'   completion, `1` for iteration limit reached, and higher codes for
-#'   warnings or errors depending on the method).
-#' @param message Character scalar giving any additional information
-#'   returned by the optimiser (e.g. warnings, diagnostic messages).
-#'   May be `NA_character_` if no message is available.
-#' @param hessian Numeric object (typically a symmetric matrix) giving an
-#'   estimate of the Hessian at the solution. If no Hessian is available,
-#'   this is set to `NaN`. Passing `NULL` will also be stored internally
-#'   as `NaN`.
+#' @return
+#' A new `OptimisationResult` S7 object.
 #'
 #' @return
 #' A new `OptimisationResult` S7 object with the supplied molecules and
