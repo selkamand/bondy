@@ -9,7 +9,8 @@ extract_optimisation_inputs(
   mol2,
   mol1_binding_atom,
   mol2_binding_atom,
-  shapeclass
+  shapeclass,
+  invert_symmetry_axis = FALSE
 )
 }
 \arguments{

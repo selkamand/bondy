@@ -9,7 +9,8 @@ OptimisationResult(
   optimisation_inputs,
   optimisation_outputs,
   minimised_value_description,
-  loss_function
+  loss_function,
+  orientation = "+"
 )
 }
 \arguments{

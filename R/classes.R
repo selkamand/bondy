@@ -552,14 +552,16 @@ OptimisationResult <- S7::new_class(
     optimisation_inputs = OptimisationInputs,
     optimisation_outputs = OptimisationResultBasic,
     loss_function = S7::class_function,
-    minimised_value_description = S7::class_character
+    minimised_value_description = S7::class_character,
+    orientation = S7::class_character
   ),
   constructor = function(
     shapeclass = "NotSpecified",
     optimisation_inputs,
     optimisation_outputs,
     minimised_value_description,
-    loss_function
+    loss_function,
+    orientation = "+"
   ) {
     S7::new_object(
       S7::S7_object(),
@@ -567,7 +569,8 @@ OptimisationResult <- S7::new_class(
       optimisation_inputs = optimisation_inputs,
       optimisation_outputs = optimisation_outputs,
       loss_function = loss_function,
-      minimised_value_description = minimised_value_description
+      minimised_value_description = minimised_value_description,
+      orientation = orientation
     )
   }
 )
@@ -628,6 +631,7 @@ S7::method(print, OptimisationResult) <- function(x, ...) {
     "Optimisation Result",
     "================================",
     sprintf("Shape Classes: %s", x@shapeclass),
+    sprintf("Orientation: %s", x@orientation),
     sprintf(
       "Minimised %s: %f",
       x@minimised_value_description,
@@ -650,6 +654,7 @@ is_optimisation_result <- function(x) {
 get_optimistation_stats <- function(x) {
   stats <- c(
     "Shape Class" = x@shapeclass,
+    "Molecule orientation (best of 2 search spaces)" = x@orientation,
     "Minimised Sum of Squared Distance" = x@min_sum_of_squared_distance,
     "Minimised Angle (pi = perfect)" = x@angle_between_dummy_binding_vectors,
     "Method" = x@optimisation_outputs@method,

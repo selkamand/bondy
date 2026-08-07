@@ -51,16 +51,34 @@ screen_molecules <- function(
     cli::cli_alert_info("Searching for optimal arrangement of molecules")
 
     # Prepare data required to generate the loss function we're going to optimsie
-    optimisation_inputs <- extract_optimisation_inputs(
+    optimisation_inputs_unrotated <- extract_optimisation_inputs(
       mol1 = molecule1,
       mol2 = molecule2,
       mol1_binding_atom = mol1_binding_atom,
       mol2_binding_atom = mol2_binding_atom,
-      shapeclass = shapeclass
+      shapeclass = shapeclass,
+      invert_symmetry_axis = FALSE
     )
 
-    # Generate the loss function
-    fn_loss <- generate_loss_function(optimisation_inputs)
+    # Prepare a second set of input data, this time with mol2 rotated 180 degrees around a vector perpendicular to the proper rotation axis
+    # (note we cheat here and just invert the rotation axis inverted so
+    # we can cover the second search space (see issue #19)
+    # note inverting the rotation axis does not actually mirror/ change the chirality of the molecule because these axes are actually directionless in reality
+    # and we're not changing the molecule at all.
+    # Proper rotation Axes have a sense of direction in our object which affects the orientation that its loaded in  relative to the other molecule
+
+    optimisation_inputs_rotated <- extract_optimisation_inputs(
+      mol1 = molecule1,
+      mol2 = molecule2,
+      mol1_binding_atom = mol1_binding_atom,
+      mol2_binding_atom = mol2_binding_atom,
+      shapeclass = shapeclass,
+      invert_symmetry_axis = TRUE
+    )
+
+    # Generate the loss functions
+    fn_loss_unrotated <- generate_loss_function(optimisation_inputs_unrotated)
+    fn_loss_rotated <- generate_loss_function(optimisation_inputs_rotated)
 
     # Optimise the distance between dummy atom of 1 molecule and binding atom of the other
     cli::cli_alert_info(
@@ -68,22 +86,54 @@ screen_molecules <- function(
     )
 
     # Find paramaters that minimise the loss function by L-BFGS-B (returns OptimisationResultBasic() object)
-    optimisation_outputs_l_bfgs_b <- optimise_L_BFGS_B(fn_loss)
-    optimisation_outputs_sann <- optimise_surface_annealing(fn_loss)
+    cli::cli_h2("Optimising + orientation")
+    optimisation_outputs_l_bfgs_b <- optimise_L_BFGS_B(fn_loss_unrotated)
+    optimisation_outputs_sann <- optimise_surface_annealing(fn_loss_unrotated)
 
-    optimisation_outputs <- pick_best_result(
+    # Do the same for the rotated form
+    cli::cli_h2("Optimising - orientation")
+    optimisation_outputs_rotated_l_bfgs_b <- optimise_L_BFGS_B(fn_loss_rotated)
+    optimisation_outputs_rotated_sann <- optimise_surface_annealing(
+      fn_loss_rotated
+    )
+
+    cli::cli_h2("Comparing all optimisation runs")
+    # Pick the best optimisation model for non-rotated
+    optimisation_outputs_unrotated <- pick_best_result(
       optimisation_outputs_l_bfgs_b,
       optimisation_outputs_sann
     )
 
-    # Enrich the optimisation results so we have a single object that describes all the information we might need
-    optimisation <- OptimisationResult(
-      shapeclass,
-      optimisation_inputs,
-      optimisation_outputs,
-      loss_function = fn_loss,
-      minimised_value_description = "sum of squared distance"
+    # Pick the best optimisation model for rotated form
+    optimisation_outputs_rotated <- pick_best_result(
+      optimisation_outputs_rotated_l_bfgs_b,
+      optimisation_outputs_rotated_sann
     )
+
+    unrotated_better <- is_first_optimisation_better(
+      optimisation_outputs_unrotated,
+      optimisation_outputs_rotated
+    )
+
+    if (unrotated_better) {
+      optimisation <- OptimisationResult(
+        shapeclass,
+        optimisation_inputs_unrotated,
+        optimisation_outputs_unrotated,
+        loss_function = fn_loss_unrotated,
+        minimised_value_description = "sum of squared distance",
+        orientation = "+"
+      )
+    } else {
+      optimisation <- OptimisationResult(
+        shapeclass,
+        optimisation_inputs_rotated,
+        optimisation_outputs_rotated,
+        loss_function = fn_loss_rotated,
+        minimised_value_description = "sum of squared distance",
+        orientation = "-"
+      )
+    }
 
     return(optimisation)
   })
@@ -95,22 +145,35 @@ screen_molecules <- function(
   )
 }
 
-pick_best_result <- function(optimisation_output_1, optimisation_output_2) {
+is_first_optimisation_better <- function(
+  optimisation_output_1,
+  optimisation_output_2
+) {
   minimised_val_1 <- optimisation_output_1@minimised_value
   minimised_val_2 <- optimisation_output_2@minimised_value
 
   if (is.null(minimised_val_2) | is.na(minimised_val_2)) {
-    return(optimisation_output_1)
+    return(TRUE)
   } else if (is.null(minimised_val_1) | is.na(minimised_val_1)) {
-    return(optimisation_output_2)
+    return(FALSE)
   } else if (minimised_val_1 >= minimised_val_2) {
-    return(optimisation_output_2)
+    return(FALSE)
   } else if (minimised_val_1 < minimised_val_2) {
-    return(optimisation_output_1)
+    return(TRUE)
   } else {
     stop(
       "Should never reach this fallthrough condition. Bug in symbo. Please report"
     )
+  }
+}
+
+pick_best_result <- function(optimisation_output_1, optimisation_output_2) {
+  if (
+    is_first_optimisation_better(optimisation_output_1, optimisation_output_2)
+  ) {
+    return(optimisation_output_1)
+  } else {
+    return(optimisation_output_2)
   }
 }
 
@@ -224,7 +287,8 @@ extract_optimisation_inputs <- function(
   mol2,
   mol1_binding_atom,
   mol2_binding_atom,
-  shapeclass
+  shapeclass,
+  invert_symmetry_axis = FALSE
 ) {
   # Assertions
   assertions::assert_class(mol1, class = "structures::Molecule3D")
@@ -285,6 +349,10 @@ extract_optimisation_inputs <- function(
     z = df_assessable$Axis2z
   )
 
+  if (invert_symmetry_axis) {
+    target_axis2_position <- -target_axis2_position
+  }
+
   # Get molecule order (flip if required)
   mol1 <- if (!flipped) mol1_original else mol2_original
   mol2 <- if (!flipped) mol2_original else mol1_original
@@ -310,6 +378,26 @@ extract_optimisation_inputs <- function(
     mol2,
     Cn = mol2_axis_cn
   )
+
+  # Optionally flip the symmetry axis position to cover the second half of the search space when invert_symmetry_axis
+  if (invert_symmetry_axis) {
+    # Simplify this once structures has an invert_symmetry_axis_function
+    mol2_pra <- structures::fetch_symmetry_element_from_molecule(
+      mol2,
+      id = mol2_axis_id
+    )
+
+    posA <- mol2_pra@posA
+    posB <- mol2_pra@posB
+    mol2_pra_inverted <- structures::ProperRotationAxis(
+      n = mol2_axis_cn,
+      posA = posB,
+      posB = posA
+    )
+    mol2@symmetry_elements@elements[[
+      mol2_axis_id
+    ]] <- mol2_pra_inverted
+  }
 
   # Fetch first dummy atoms from each molecule
   cli::cli_alert_info("Fetching the first dummy atom in each molecule")
