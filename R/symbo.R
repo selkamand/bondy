@@ -349,9 +349,9 @@ extract_optimisation_inputs <- function(
     z = df_assessable$Axis2z
   )
 
-  if (invert_symmetry_axis) {
-    target_axis2_position <- -target_axis2_position
-  }
+  # if (invert_symmetry_axis) {
+  #   target_axis2_position <- -target_axis2_position
+  # }
 
   # Get molecule order (flip if required)
   mol1 <- if (!flipped) mol1_original else mol2_original
@@ -398,28 +398,30 @@ extract_optimisation_inputs <- function(
       mol2_axis_id
     ]] <- mol2_pra_inverted
   }
+  # Fetch first dummy atoms bonded to the selected binding atom in each molecule
+  cli::cli_alert_info(
+    "Fetching the first dummy atom bonded to each binding atom"
+  )
+  mol1_dummy_eleno <- fetch_first_dummy_atom_bonded_to_atom(
+    molecule = mol1,
+    binding_atom_eleno = mol1_binding_atom_flipped
+  )
+  mol2_dummy_eleno <- fetch_first_dummy_atom_bonded_to_atom(
+    molecule = mol2,
+    binding_atom_eleno = mol2_binding_atom_flipped
+  )
 
-  # Fetch first dummy atoms from each molecule
-  cli::cli_alert_info("Fetching the first dummy atom in each molecule")
-  mol1_dummy_eleno <- utils::head(
-    structures::fetch_eleno_by_atom_type(mol1, atom_type = c("Du", "Du.C")),
-    n = 1
-  )
-  mol2_dummy_eleno <- utils::head(
-    structures::fetch_eleno_by_atom_type(mol2, atom_type = c("Du", "Du.C")),
-    n = 1
-  )
-
-  assertions::assert_length_greater_than(
-    mol1_dummy_eleno,
-    length = 0,
-    msg = "Failed to find any dummy atoms in molecule [{mol1@name}]. Please ensure they are correctly labelled in your mol2 file (atom_type must be 'Du' or 'Du.C')"
-  )
-  assertions::assert_length_greater_than(
-    mol2_dummy_eleno,
-    length = 0,
-    msg = "Failed to find any dummy atoms in molecule [{mol2@name}]. Please ensure they are correctly labelled in your mol2 file (atom_type must be 'Du' or 'Du.C')"
-  )
+  # No longer need because fetch_first_dummy_atom_bonded_to_atom should error appropriatedly
+  # assertions::assert_length_greater_than(
+  #   mol1_dummy_eleno,
+  #   length = 0,
+  #   msg = "Failed to find any dummy atoms in molecule [{mol1@name}]. Please ensure they are correctly labelled in your mol2 file (atom_type must be 'Du' or 'Du.C')"
+  # )
+  # assertions::assert_length_greater_than(
+  #   mol2_dummy_eleno,
+  #   length = 0,
+  #   msg = "Failed to find any dummy atoms in molecule [{mol2@name}]. Please ensure they are correctly labelled in your mol2 file (atom_type must be 'Du' or 'Du.C')"
+  # )
 
   # Rotate Molecules So Symmetry axes align with targets
   cli::cli_alert_info(
@@ -666,4 +668,49 @@ create_combos <- function(molecule1_axes, molecule2_axes) {
 
 bind_rows_into_mx <- function(ls) {
   as.matrix(do.call(rbind, ls))
+}
+
+fetch_first_dummy_atom_bonded_to_atom <- function(
+  molecule,
+  binding_atom_eleno,
+  dummy_atom_types = c("Du", "Du.C")
+) {
+  assertions::assert_class(molecule, class = "structures::Molecule3D")
+  assertions::assert_length(binding_atom_eleno, length = 1)
+
+  dummy_eleno <- structures::fetch_eleno_by_atom_type(
+    molecule,
+    atom_type = dummy_atom_types
+  )
+
+  if (length(dummy_eleno) == 0) {
+    cli::cli_abort(
+      "Failed to find any dummy atoms in molecule [{molecule@name}]. Please ensure they are correctly labelled in your mol2 file (atom_type must be 'Du' or 'Du.C')"
+    )
+  }
+
+  bond_table <- structures::bonds(molecule)
+  incident_bonds <- bond_table[
+    bond_table$origin_atom_id == binding_atom_eleno |
+      bond_table$target_atom_id == binding_atom_eleno,
+    ,
+    drop = FALSE
+  ]
+
+  bonded_eleno <- ifelse(
+    incident_bonds$origin_atom_id == binding_atom_eleno,
+    incident_bonds$target_atom_id,
+    incident_bonds$origin_atom_id
+  )
+
+  bonded_dummy_eleno <- bonded_eleno[bonded_eleno %in% dummy_eleno]
+  first_bonded_dummy_eleno <- utils::head(bonded_dummy_eleno, n = 1)
+
+  if (length(first_bonded_dummy_eleno) == 0) {
+    cli::cli_abort(
+      "Failed to find a dummy atom bonded to binding atom [{binding_atom_eleno}] in molecule [{molecule@name}]. Please ensure the selected binding atom is directly bonded to an atom with atom_type 'Du' or 'Du.C'."
+    )
+  }
+
+  return(first_bonded_dummy_eleno)
 }

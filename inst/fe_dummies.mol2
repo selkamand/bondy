@@ -181,6 +181,9 @@ Generated from the CSD
     88    76    78   ar
     89    78    79    1
     90    80    81    1
+    91    82    33    1
+    92    1    7    1
+    93    83    59    1
 @<TRIPOS>SUBSTRUCTURE
      1 RES1        1 GROUP             0 ****  ****    0  
      2 RES2        2 GROUP             0 ****  ****    0  
