@@ -14,6 +14,8 @@ OptimisationResult(
 )
 }
 \arguments{
+\item{shapeclass}{Name of the shape class being evaluated (character scalar). See \code{\link[=list_all_shapeclasses]{list_all_shapeclasses()}} for valid terms}
+
 \item{optimisation_inputs}{An \code{\link{OptimisationInputs}} object describing the
 oriented molecules and atom IDs used by the objective function, created using \code{\link[=extract_optimisation_inputs]{extract_optimisation_inputs()}}.}
 

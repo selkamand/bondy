@@ -14,6 +14,8 @@ get_assessable_shapeclasses_from_molecules(
 \item{molecule1}{a \code{\link[structures:Molecule3D]{Molecule3D()}} object annotated with its proper rotation axes}
 
 \item{molecule2}{a \code{\link[structures:Molecule3D]{Molecule3D()}} object annotated with its proper rotation axes}
+
+\item{verbose}{verbose (flag)}
 }
 \value{
 A \code{data.frame} containing all assessable geometries given

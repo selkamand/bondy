@@ -23,6 +23,8 @@ extract_optimisation_inputs(
 \item{mol2_binding_atom}{(eleno)}
 
 \item{shapeclass}{a string describing the exact shapeclass to extract optimisation inputs for (see list_all_shapeclasses() for options)}
+
+\item{invert_symmetry_axis}{equivalent to rotating the molecule 180 degrees around the symmetry axis. Used to generate the second potential search space (-). See #19 for details.}
 }
 \value{
 an \code{\link[=OptimisationInputs]{OptimisationInputs()}} object

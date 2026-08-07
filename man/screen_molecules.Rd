@@ -14,8 +14,6 @@ screen_molecules(molecule1, molecule2, mol1_binding_atom, mol2_binding_atom)
 \item{mol1_binding_atom}{the atom you expect will bind to molecule2 (integer representing element number a.k.a eleno).}
 
 \item{mol2_binding_atom}{the atom you expect will bind to molecule1 (integer representing element number a.k.a eleno).}
-
-\item{method, lower, upper, control, hessian}{optimisation algorith configuration. See \code{\link[stats:optim]{stats::optim()}} for details.}
 }
 \value{
 an \code{\link[=OptimisationResultCollection]{OptimisationResultCollection()}} object.

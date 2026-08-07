@@ -8,7 +8,6 @@
 #' @param molecule2 a [structures::Molecule3D()] object with symmetry axes annotated and dummy atoms representing where the mol1_binding_atom might bind.
 #' @param mol1_binding_atom the atom you expect will bind to molecule2 (integer representing element number a.k.a eleno).
 #' @param mol2_binding_atom the atom you expect will bind to molecule1 (integer representing element number a.k.a eleno).
-#' @param method,lower,upper,control,hessian optimisation algorith configuration. See [stats::optim()] for details.
 #'
 #' @return an [OptimisationResultCollection()] object.
 #' @export
@@ -279,7 +278,7 @@ generate_loss_function <- function(input) {
 #' @param mol1_binding_atom (eleno)
 #' @param mol2_binding_atom (eleno)
 #' @param shapeclass a string describing the exact shapeclass to extract optimisation inputs for (see list_all_shapeclasses() for options)
-#'
+#' @param invert_symmetry_axis equivalent to rotating the molecule 180 degrees around the symmetry axis. Used to generate the second potential search space (-). See #19 for details.
 #' @return an [OptimisationInputs()] object
 #' @export
 extract_optimisation_inputs <- function(
@@ -597,6 +596,7 @@ get_assessable_shapeclasses <- function(molecule1_axes, molecule2_axes) {
 #'
 #' @param molecule1 a [Molecule3D()] object annotated with its proper rotation axes
 #' @param molecule2 a [Molecule3D()] object annotated with its proper rotation axes
+#' @param verbose verbose (flag)
 #'
 #'
 get_assessable_shapeclasses_from_molecules <- function(

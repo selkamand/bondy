@@ -2,7 +2,7 @@
 % Please edit documentation in R/classes.R
 \name{OptimisationResultBasic}
 \alias{OptimisationResultBasic}
-\title{Basic Optimisation Result}
+\title{Basic optimisation result}
 \usage{
 OptimisationResultBasic(
   minimised_value = NaN,
@@ -18,17 +18,79 @@ OptimisationResultBasic(
   message = NA_character_
 )
 }
-\description{
-A container describing the basic metrics of an optimisation result (doesn't store all the meta information).
-This class lets us add as many custom optimisers as we want, so long as the results can be summarised into the following fields.
-}
-\details{
-Convergence is a string describing whether or not the model converged successfully
-"successful" = model converged
-"out of iterations" = the model ran out of iterations before converging
-"simplex degeneracy" = indicates degeneracy of the Nelder-Mead simplex
-"warning" = optimisation algorithm returned a warning. See 'message' parameter for details
-"error" = optimisation algorithm threw an error. See 'message' parameter for details
+\arguments{
+\item{minimised_value}{Numeric scalar giving the objective value at the
+selected parameter vector. Defaults to \code{NaN}.}
 
-par is the optimised 4-parameter vector that if fed into the loss function will produce minimised_value
+\item{method}{Character scalar naming the optimisation method or optimiser.
+Defaults to \code{"Not specified"}.}
+
+\item{mol1_phi, mol2_phi}{Numeric scalars giving the fitted rotation angles
+for molecule 1 and molecule 2. Defaults to \code{NaN}.}
+
+\item{mol1_slide, mol2_slide}{Numeric scalars giving the fitted slide
+distances for molecule 1 and molecule 2. Defaults to \code{NaN}.}
+
+\item{n_calls_to_fn}{Numeric scalar giving the number of objective-function
+calls. Defaults to \code{0}.}
+
+\item{n_calls_to_gr}{Numeric scalar giving the number of gradient-function
+calls. Defaults to \code{0}.}
+
+\item{convergence}{Character scalar giving the convergence status. Defaults
+to \code{"successful"} and must be one of the values listed in the fields
+section.}
+
+\item{message}{Character scalar containing any optimiser message. \code{NULL} is
+stored as \code{""}; values longer than length one are rejected.}
 }
+\value{
+A new \code{OptimisationResultBasic} S7 object.
+}
+\description{
+\code{OptimisationResultBasic} stores the optimiser output needed by higher-level
+Symbo result objects. It describes the minimised objective value, the four fitted rotation/slide
+parameters, call counts, convergence status, and any optimiser message.
+}
+\section{Fields}{
+
+
+The class has the following properties:
+
+\describe{
+\item{minimised_value}{Numeric scalar giving the objective value at the
+selected parameter vector.}
+
+\item{method}{Character scalar naming the optimisation method or optimiser
+that produced the result.}
+
+\item{mol1_phi}{Numeric scalar giving the rotation angle applied to
+molecule 1 about its optimisation axis.}
+
+\item{mol2_phi}{Numeric scalar giving the rotation angle applied to
+molecule 2 about its optimisation axis.}
+
+\item{mol1_slide}{Numeric scalar giving the translation distance applied
+to molecule 1 along its optimisation axis.}
+
+\item{mol2_slide}{Numeric scalar giving the translation distance applied
+to molecule 2 along its optimisation axis.}
+
+\item{par}{Read-only numeric vector containing the optimised parameters in
+loss-function order: \code{c(mol1_phi, mol1_slide, mol2_phi, mol2_slide)}.}
+
+\item{n_calls_to_fn}{Numeric scalar giving the number of calls made to the
+objective function.}
+
+\item{n_calls_to_gr}{Numeric scalar giving the number of calls made to the
+gradient function, where applicable.}
+
+\item{convergence}{Character scalar summarising the optimiser convergence
+status. Must be one of \code{"successful"}, \code{"out of iterations"},
+\code{"simplex degeneracy"}, \code{"warning"}, or \code{"error"}.}
+
+\item{message}{Character scalar containing any optimiser message, warning,
+or diagnostic text.}
+}
+}
+
